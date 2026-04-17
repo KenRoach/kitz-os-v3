@@ -52,4 +52,11 @@ describe('POST /api/auth/verify', () => {
     expect(setCookie).toContain('kitz_session=');
     expect(setCookie).toContain('HttpOnly');
   });
+
+  it('first-login response routes to /onboarding when no tenant exists', async () => {
+    const res = await issueThenVerify('first@x.com', 'USE_REAL');
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { data: { next: string } };
+    expect(body.data.next).toBe('/onboarding');
+  });
 });

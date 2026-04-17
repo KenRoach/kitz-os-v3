@@ -12,24 +12,21 @@ export default function LoginPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'system-ui, sans-serif',
         padding: '2rem',
       }}
     >
-      <section
-        style={{
-          width: '100%',
-          maxWidth: '28rem',
-          padding: '2.5rem',
-          border: '1px solid #eaeaea',
-          borderRadius: '12px',
-        }}
-      >
-        <h1 style={{ fontSize: '1.75rem', margin: '0 0 0.25rem 0' }}>KitZ</h1>
-        <p style={{ margin: '0 0 2rem 0', color: '#666' }}>
-          Entra con tu correo. Te enviamos un código de 6 dígitos.
+      <section className="kz-panel" style={{ width: '100%', maxWidth: '28rem' }}>
+        <p className="kz-mute kz-prompt" style={{ marginBottom: '1rem' }}>
+          kitz login
         </p>
-        <LoginForm />
+        <h1 style={{ marginBottom: '0.5rem' }}>Entrar</h1>
+        <p className="kz-mute" style={{ marginBottom: '1.5rem' }}>
+          Código de 6 dígitos al correo. Sin contraseñas.
+        </p>
+        <div className="kz-divider" />
+        <div style={{ marginTop: '1.5rem' }}>
+          <LoginForm />
+        </div>
       </section>
     </main>
   );

@@ -1,0 +1,198 @@
+/* KitZ — terminal aesthetic
+ * white background, black borders, grey letters, monospace.
+ */
+
+:root {
+  --kitz-bg: #ffffff;
+  --kitz-border: #000000;
+  --kitz-text: #555555;
+  --kitz-text-strong: #222222;
+  --kitz-text-dim: #888888;
+  --kitz-muted: #f4f4f4;
+  --kitz-accent: #000000;
+  --kitz-error: #7a1f1f;
+
+  --kitz-radius: 0;
+  --kitz-border-width: 1px;
+
+  --kitz-font-mono:
+    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Monaco, 'Cascadia Mono', Consolas,
+    'Liberation Mono', monospace;
+
+  --kitz-space-1: 0.25rem;
+  --kitz-space-2: 0.5rem;
+  --kitz-space-3: 0.75rem;
+  --kitz-space-4: 1rem;
+  --kitz-space-6: 1.5rem;
+  --kitz-space-8: 2rem;
+  --kitz-space-12: 3rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--kitz-bg);
+  color: var(--kitz-text);
+  font-family: var(--kitz-font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--kitz-text-strong);
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+h2 {
+  font-size: 1.125rem;
+}
+h3 {
+  font-size: 1rem;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--kitz-text-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.kz-panel {
+  background: var(--kitz-bg);
+  border: var(--kitz-border-width) solid var(--kitz-border);
+  border-radius: var(--kitz-radius);
+  padding: var(--kitz-space-6);
+}
+
+.kz-divider {
+  height: 1px;
+  background: var(--kitz-border);
+  margin: var(--kitz-space-4) 0;
+}
+
+.kz-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--kitz-text-dim);
+  margin-bottom: var(--kitz-space-2);
+}
+
+.kz-input {
+  width: 100%;
+  padding: var(--kitz-space-3) var(--kitz-space-4);
+  font-family: var(--kitz-font-mono);
+  font-size: 0.875rem;
+  color: var(--kitz-text-strong);
+  background: var(--kitz-bg);
+  border: var(--kitz-border-width) solid var(--kitz-border);
+  border-radius: 0;
+  outline: none;
+}
+
+.kz-input:focus {
+  box-shadow: inset 0 0 0 1px var(--kitz-border);
+}
+
+.kz-input::placeholder {
+  color: var(--kitz-text-dim);
+}
+
+.kz-code-input {
+  letter-spacing: 0.5rem;
+  text-align: center;
+  font-size: 1.25rem;
+}
+
+.kz-button {
+  width: 100%;
+  padding: var(--kitz-space-3) var(--kitz-space-4);
+  font-family: var(--kitz-font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--kitz-bg);
+  background: var(--kitz-accent);
+  border: var(--kitz-border-width) solid var(--kitz-border);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.kz-button:hover:not(:disabled) {
+  background: var(--kitz-text-strong);
+}
+
+.kz-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kz-button-ghost {
+  background: var(--kitz-bg);
+  color: var(--kitz-text-strong);
+}
+
+.kz-button-ghost:hover:not(:disabled) {
+  background: var(--kitz-muted);
+}
+
+.kz-prompt::before {
+  content: '$ ';
+  color: var(--kitz-text-dim);
+}
+
+.kz-caret::after {
+  content: '▋';
+  color: var(--kitz-text-strong);
+  animation: kz-blink 1.1s steps(1) infinite;
+  margin-left: 2px;
+}
+
+@keyframes kz-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.kz-mute {
+  color: var(--kitz-text-dim);
+  font-size: 0.75rem;
+}
+
+.kz-error {
+  color: var(--kitz-error);
+  font-size: 0.8125rem;
+  border-left: 2px solid var(--kitz-error);
+  padding-left: var(--kitz-space-3);
+}
+
+.kz-kbd {
+  display: inline-block;
+  padding: 0 var(--kitz-space-2);
+  border: 1px solid var(--kitz-border);
+  color: var(--kitz-text-strong);
+  background: var(--kitz-muted);
+  font-size: 0.75rem;
+}

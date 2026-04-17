@@ -1,4 +1,5 @@
 import type { AuthOtpRecord, AuthSession, Tenant, UserProfile, WorkspaceMember } from './types';
+import type { UserRole } from '@kitz/types';
 
 /**
  * Narrow, testable database surface.
@@ -14,12 +15,25 @@ export interface DbClient {
   incrementOtpAttempts(id: string): Promise<number>;
   consumeOtp(id: string): Promise<void>;
 
-  // Users + tenants
+  // Users
   findUserByEmail(email: string): Promise<UserProfile | null>;
   createUser(input: { email: string; locale?: 'es' | 'en' | 'pt' }): Promise<UserProfile>;
+  updateUserProfile(
+    userId: string,
+    patch: Partial<Pick<UserProfile, 'full_name' | 'avatar_url' | 'locale'>>,
+  ): Promise<UserProfile>;
+
+  // Tenants + membership
   findPrimaryTenant(
     userId: string,
   ): Promise<{ tenant: Tenant; membership: WorkspaceMember } | null>;
+  findTenantBySlug(slug: string): Promise<Tenant | null>;
+  createTenantWithOwner(input: {
+    slug: string;
+    name: string;
+    ownerUserId: string;
+    role?: UserRole;
+  }): Promise<{ tenant: Tenant; membership: WorkspaceMember }>;
 
   // Session (opaque to callers — stub returns an in-memory token)
   createSession(userId: string, email: string): Promise<AuthSession & { token: string }>;

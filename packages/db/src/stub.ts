@@ -1,26 +1,20 @@
 import { randomUUID } from 'node:crypto';
 import type { DbClient } from './interface';
 import type { AuthOtpRecord, AuthSession, Tenant, UserProfile, WorkspaceMember } from './types';
+import type { UserRole } from '@kitz/types';
 
 type StubState = {
   otps: Map<string, AuthOtpRecord>;
-  users: Map<string, UserProfile>; // key = email
-  tenants: Map<string, Tenant>; // key = tenant.id
-  members: Map<string, WorkspaceMember>; // key = member.id
-  sessions: Map<string, AuthSession>; // key = token
+  users: Map<string, UserProfile>;
+  tenants: Map<string, Tenant>;
+  members: Map<string, WorkspaceMember>;
+  sessions: Map<string, AuthSession>;
 };
 
 function nowIso(): string {
   return new Date().toISOString();
 }
 
-/**
- * In-memory stub DbClient for development and tests.
- *
- * Behaviour matches the intended real Supabase implementation so tests that
- * pass here will pass in production. Not thread-safe across processes —
- * single process per test file.
- */
 export function createStubDb(): DbClient {
   const state: StubState = {
     otps: new Map(),
@@ -32,7 +26,6 @@ export function createStubDb(): DbClient {
 
   return {
     async createOtp({ email, codeHash, ttlSeconds }) {
-      // Invalidate any prior active OTPs for this email.
       for (const otp of state.otps.values()) {
         if (otp.email === email && !otp.consumed_at) {
           otp.consumed_at = nowIso();
@@ -79,9 +72,7 @@ export function createStubDb(): DbClient {
     },
 
     async createUser({ email, locale = 'es' }) {
-      if (state.users.has(email)) {
-        throw new Error('user_exists');
-      }
+      if (state.users.has(email)) throw new Error('user_exists');
       const profile: UserProfile = {
         id: randomUUID(),
         email,
@@ -94,6 +85,22 @@ export function createStubDb(): DbClient {
       return profile;
     },
 
+    async updateUserProfile(userId, patch) {
+      for (const [email, profile] of state.users.entries()) {
+        if (profile.id === userId) {
+          const updated: UserProfile = {
+            ...profile,
+            full_name: patch.full_name ?? profile.full_name,
+            avatar_url: patch.avatar_url ?? profile.avatar_url,
+            locale: patch.locale ?? profile.locale,
+          };
+          state.users.set(email, updated);
+          return updated;
+        }
+      }
+      throw new Error('user_not_found');
+    },
+
     async findPrimaryTenant(userId) {
       for (const member of state.members.values()) {
         if (member.user_id === userId) {
@@ -102,6 +109,39 @@ export function createStubDb(): DbClient {
         }
       }
       return null;
+    },
+
+    async findTenantBySlug(slug) {
+      for (const tenant of state.tenants.values()) {
+        if (tenant.slug === slug) return tenant;
+      }
+      return null;
+    },
+
+    async createTenantWithOwner({ slug, name, ownerUserId, role }) {
+      for (const tenant of state.tenants.values()) {
+        if (tenant.slug === slug) throw new Error('slug_taken');
+      }
+      const finalRole: UserRole = role ?? 'owner';
+      const tenant: Tenant = {
+        id: randomUUID(),
+        slug,
+        name,
+        plan: 'free',
+        settings: {},
+        created_at: nowIso(),
+      };
+      const membership: WorkspaceMember = {
+        id: randomUUID(),
+        tenant_id: tenant.id,
+        user_id: ownerUserId,
+        role: finalRole,
+        invited_by: null,
+        joined_at: nowIso(),
+      };
+      state.tenants.set(tenant.id, tenant);
+      state.members.set(membership.id, membership);
+      return { tenant, membership };
     },
 
     async createSession(userId, email) {

@@ -4,28 +4,6 @@ import { useState, type FormEvent } from 'react';
 
 type Stage = 'email' | 'code' | 'done';
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '0.75rem 1rem',
-  fontSize: '1rem',
-  border: '1px solid #d4d4d4',
-  borderRadius: '8px',
-  marginBottom: '0.75rem',
-  boxSizing: 'border-box',
-};
-
-const buttonStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '0.75rem 1rem',
-  fontSize: '1rem',
-  fontWeight: 600,
-  background: '#111',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '8px',
-  cursor: 'pointer',
-};
-
 export default function LoginForm() {
   const [stage, setStage] = useState<Stage>('email');
   const [email, setEmail] = useState('');
@@ -33,6 +11,7 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [devCode, setDevCode] = useState<string | null>(null);
+  const [nextTarget, setNextTarget] = useState('/workspace');
 
   async function submitEmail(e: FormEvent) {
     e.preventDefault();
@@ -76,7 +55,11 @@ export default function LoginForm() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email, code }),
       });
-      const body = (await res.json()) as { success: boolean; error: string | null };
+      const body = (await res.json()) as {
+        success: boolean;
+        data: { userId: string; next: string } | null;
+        error: string | null;
+      };
       if (!body.success) {
         const msg =
           body.error === 'invalid_code'
@@ -89,8 +72,10 @@ export default function LoginForm() {
         setError(msg);
         return;
       }
+      const next = body.data?.next ?? '/workspace';
+      setNextTarget(next);
       setStage('done');
-      window.location.href = '/workspace';
+      window.location.href = next;
     } catch {
       setError('Fallo de red. Intenta de nuevo.');
     } finally {
@@ -101,10 +86,7 @@ export default function LoginForm() {
   if (stage === 'email') {
     return (
       <form onSubmit={submitEmail}>
-        <label
-          htmlFor="email"
-          style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem' }}
-        >
+        <label htmlFor="email" className="kz-label">
           Correo electrónico
         </label>
         <input
@@ -115,12 +97,15 @@ export default function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="tu@empresa.com"
-          style={inputStyle}
+          className="kz-input"
+          style={{ marginBottom: '1rem' }}
         />
         {error && (
-          <p style={{ color: '#c00', margin: '0 0 0.75rem 0', fontSize: '0.875rem' }}>{error}</p>
+          <p className="kz-error" style={{ marginBottom: '1rem' }}>
+            {error}
+          </p>
         )}
-        <button type="submit" disabled={loading} style={buttonStyle}>
+        <button type="submit" disabled={loading} className="kz-button">
           {loading ? 'Enviando…' : 'Enviar código'}
         </button>
       </form>
@@ -130,10 +115,7 @@ export default function LoginForm() {
   if (stage === 'code') {
     return (
       <form onSubmit={submitCode}>
-        <label
-          htmlFor="code"
-          style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem' }}
-        >
+        <label htmlFor="code" className="kz-label">
           Código de 6 dígitos
         </label>
         <input
@@ -146,28 +128,30 @@ export default function LoginForm() {
           autoComplete="one-time-code"
           value={code}
           onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-          placeholder="123456"
-          style={{
-            ...inputStyle,
-            letterSpacing: '0.5rem',
-            textAlign: 'center',
-            fontSize: '1.5rem',
-          }}
+          placeholder="······"
+          className="kz-input kz-code-input"
+          style={{ marginBottom: '1rem' }}
         />
         {devCode && (
-          <p style={{ fontSize: '0.75rem', color: '#888', margin: '0 0 0.75rem 0' }}>
-            Modo desarrollo: tu código es <strong>{devCode}</strong>
+          <p className="kz-mute" style={{ marginBottom: '1rem' }}>
+            [dev] code = <span style={{ color: 'var(--kitz-text-strong)' }}>{devCode}</span>
           </p>
         )}
         {error && (
-          <p style={{ color: '#c00', margin: '0 0 0.75rem 0', fontSize: '0.875rem' }}>{error}</p>
+          <p className="kz-error" style={{ marginBottom: '1rem' }}>
+            {error}
+          </p>
         )}
-        <button type="submit" disabled={loading} style={buttonStyle}>
+        <button type="submit" disabled={loading} className="kz-button">
           {loading ? 'Verificando…' : 'Entrar'}
         </button>
       </form>
     );
   }
 
-  return <p>Entrando…</p>;
+  return (
+    <p className="kz-mute kz-prompt kz-caret">
+      redirect → <span style={{ color: 'var(--kitz-text-strong)' }}>{nextTarget}</span>
+    </p>
+  );
 }

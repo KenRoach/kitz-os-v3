@@ -31,9 +31,13 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json(body, { status });
   }
 
+  // First-login routing: no tenant yet → onboarding, else workspace
+  const primary = await db.findPrimaryTenant(result.userId);
+  const next = primary ? '/workspace' : '/onboarding';
+
   const isProd = process.env.NODE_ENV === 'production';
-  const response = NextResponse.json<ApiEnvelope<{ userId: string }>>(
-    { success: true, data: { userId: result.userId }, error: null },
+  const response = NextResponse.json<ApiEnvelope<{ userId: string; next: string }>>(
+    { success: true, data: { userId: result.userId, next }, error: null },
     { status: 200 },
   );
   response.cookies.set(SESSION_COOKIE_NAME, result.token, sessionCookieOptions(isProd));
