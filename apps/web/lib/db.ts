@@ -1,14 +1,26 @@
 import { createDbClient, type DbClient } from '@kitz/db';
 
 /**
- * Singleton DbClient for the web app.
+ * Process-wide singleton DbClient.
  *
- * In dev (no Supabase env) this is the in-memory stub — restarting the
- * Next.js dev server clears state. Tests get their own stub per suite.
+ * In Next.js dev, route files are re-evaluated on each compile, which would
+ * wipe an ordinary module-level `let`. Stash the instance on `globalThis`
+ * so state survives HMR and matches production behaviour (one stub = one
+ * in-memory store for the lifetime of the dev server).
+ *
+ * Restarting the dev server clears state — as expected for the stub.
  */
-let cached: DbClient | null = null;
+const globalKey = Symbol.for('kitz.db');
+
+type GlobalWithDb = typeof globalThis & {
+  [globalKey]?: DbClient;
+};
+
+const g = globalThis as GlobalWithDb;
 
 export function getDb(): DbClient {
-  if (!cached) cached = createDbClient(process.env);
-  return cached;
+  if (!g[globalKey]) {
+    g[globalKey] = createDbClient(process.env);
+  }
+  return g[globalKey];
 }

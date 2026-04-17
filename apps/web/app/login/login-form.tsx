@@ -65,11 +65,22 @@ export default function LoginForm() {
           body.error === 'invalid_code'
             ? 'Código incorrecto.'
             : body.error === 'expired'
-              ? 'El código expiró.'
-              : body.error === 'too_many_attempts'
-                ? 'Demasiados intentos. Pide uno nuevo.'
-                : 'No pudimos verificar el código.';
+              ? 'El código expiró. Pide uno nuevo.'
+              : body.error === 'no_active_otp'
+                ? 'No hay un código activo. Pide uno nuevo.'
+                : body.error === 'too_many_attempts'
+                  ? 'Demasiados intentos. Pide uno nuevo.'
+                  : 'No pudimos verificar el código.';
         setError(msg);
+        if (
+          body.error === 'no_active_otp' ||
+          body.error === 'expired' ||
+          body.error === 'too_many_attempts'
+        ) {
+          setStage('email');
+          setCode('');
+          setDevCode(null);
+        }
         return;
       }
       const next = body.data?.next ?? '/workspace';
