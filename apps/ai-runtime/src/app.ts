@@ -1,6 +1,7 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { ApiEnvelope, HealthStatus } from '@kitz/types';
 import { requireServiceJwt } from './auth.js';
+import { registerChat } from './chat.js';
 
 const SERVICE_NAME = 'ai-runtime';
 const SERVICE_VERSION = '0.0.0';
@@ -53,6 +54,8 @@ export function buildApp(opts: BuildAppOptions): FastifyInstance {
     };
     return body;
   });
+
+  registerChat(app, opts.serviceJwtSecret);
 
   return app;
 }

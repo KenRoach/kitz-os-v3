@@ -58,22 +58,43 @@ export default function ShellChat() {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages, open]);
 
-  function send(text: string) {
+  const [sending, setSending] = useState(false);
+
+  async function send(text: string) {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed || sending) return;
     const userMsg: Message = { id: `u-${Date.now()}`, role: 'user', text: trimmed };
-    const echoMsg: Message = {
-      id: `k-${Date.now()}`,
-      role: 'kitz',
-      text: 'Recibido. (Módulo 6 conectará las respuestas reales al ai-runtime.)',
-    };
-    setMessages((prev) => [...prev, userMsg, echoMsg]);
+    const history = messages.map((m) => ({ role: m.role, text: m.text }));
+    setMessages((prev) => [...prev, userMsg]);
     setInput('');
+    setSending(true);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ message: trimmed, history }),
+      });
+      const body = (await res.json()) as {
+        success: boolean;
+        data: { reply: string } | null;
+        error: string | null;
+      };
+      const reply =
+        body.success && body.data?.reply ? body.data.reply : `Error: ${body.error ?? 'unknown'}`;
+      setMessages((prev) => [...prev, { id: `k-${Date.now()}`, role: 'kitz', text: reply }]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { id: `k-${Date.now()}`, role: 'kitz', text: 'Error de red. Intenta de nuevo.' },
+      ]);
+    } finally {
+      setSending(false);
+    }
   }
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    send(input);
+    void send(input);
   }
 
   const mode: Mode = isMobile
@@ -184,12 +205,14 @@ export default function ShellChat() {
             <button
               key={s}
               type="button"
-              onClick={() => send(s)}
+              onClick={() => void send(s)}
               className="kz-kbd"
+              disabled={sending}
               style={{
-                cursor: 'pointer',
+                cursor: sending ? 'wait' : 'pointer',
                 border: '1px solid var(--kitz-border)',
                 background: 'var(--kitz-bg)',
+                opacity: sending ? 0.5 : 1,
               }}
             >
               {s}
@@ -201,17 +224,18 @@ export default function ShellChat() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Escribe a Kitz…"
+            placeholder={sending ? 'Kitz está pensando…' : 'Escribe a Kitz…'}
             className="kz-input"
             style={{ flex: 1 }}
+            disabled={sending}
           />
           <button
             type="submit"
             className="kz-button"
             style={{ width: 'auto', padding: '0.5rem 1rem', fontSize: '0.75rem' }}
-            disabled={!input.trim()}
+            disabled={!input.trim() || sending}
           >
-            Enviar
+            {sending ? '…' : 'Enviar'}
           </button>
         </form>
       </div>
