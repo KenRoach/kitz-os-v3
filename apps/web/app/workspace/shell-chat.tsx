@@ -134,7 +134,7 @@ export default function ShellChat() {
   const panel = (
     <div
       style={{
-        width: mode === 'mobile-open' ? '100%' : 'clamp(20rem, 26vw, 28rem)',
+        width: mode === 'mobile-open' ? '100%' : 'clamp(18rem, 22vw, 24rem)',
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
@@ -213,6 +213,9 @@ export default function ShellChat() {
                 border: '1px solid var(--kitz-border)',
                 background: 'var(--kitz-bg)',
                 opacity: sending ? 0.5 : 1,
+                fontSize: '0.68rem',
+                padding: '0.2rem 0.4rem',
+                whiteSpace: 'nowrap',
               }}
             >
               {s}

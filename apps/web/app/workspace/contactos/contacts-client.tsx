@@ -64,7 +64,16 @@ export default function ContactsClient() {
   }
 
   return (
-    <section style={{ padding: '2rem', display: 'grid', gap: '1.5rem' }}>
+    <section
+      style={{
+        padding: '2rem',
+        display: 'grid',
+        gap: '1.5rem',
+        maxWidth: '80rem',
+        width: '100%',
+        margin: '0 auto',
+      }}
+    >
       <header>
         <p className="kz-mute kz-prompt" style={{ marginBottom: '0.5rem' }}>
           kitz crm

@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   const checklist = buildChecklist(stats);
 
   return (
-    <section style={{ padding: '2rem', maxWidth: '60rem' }}>
+    <section style={{ padding: '2rem', maxWidth: '60rem', margin: '0 auto' }}>
       <p className="kz-mute kz-prompt" style={{ marginBottom: '0.5rem' }}>
         kitz dashboard
       </p>
