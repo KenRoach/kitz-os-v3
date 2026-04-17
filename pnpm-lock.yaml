@@ -53,6 +53,9 @@ importers:
       '@kitz/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@kitz/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@kitz/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -68,6 +71,9 @@ importers:
       react-dom:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
+      zod:
+        specifier: 3.24.1
+        version: 3.24.1
     devDependencies:
       '@types/node':
         specifier: 22.10.2
@@ -117,10 +123,23 @@ importers:
         version: 2.1.8(@types/node@22.10.2)
 
   packages/db:
+    dependencies:
+      '@kitz/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
+      '@types/node':
+        specifier: 22.10.2
+        version: 22.10.2
+      '@vitest/coverage-v8':
+        specifier: 2.1.8
+        version: 2.1.8(vitest@2.1.8(@types/node@22.10.2))
       typescript:
         specifier: 5.7.2
         version: 5.7.2
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.10.2)
 
   packages/flags:
     devDependencies:

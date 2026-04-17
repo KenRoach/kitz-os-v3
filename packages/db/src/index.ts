@@ -1,5 +1,12 @@
 /**
- * @kitz/db — Supabase client factory and migration entry point.
- * Real Supabase client is added in Phase 1 module 2 (Auth).
+ * @kitz/db — database provider interface + stub + real factory.
+ *
+ * Both apps (web, ai-runtime) depend only on the DbClient interface.
+ * A concrete provider (stub for dev/tests, real for production) is selected
+ * at process start via `createDbClient(env)`.
  */
-export const KITZ_DB_VERSION = '0.0.0';
+
+export * from './types';
+export * from './interface';
+export { createStubDb } from './stub';
+export { createDbClient } from './factory';

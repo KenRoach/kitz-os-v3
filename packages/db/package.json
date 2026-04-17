@@ -6,15 +6,24 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./stub": "./src/stub.ts",
+    "./types": "./src/types.ts"
   },
   "scripts": {
     "lint": "echo 'no lint yet'",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'no tests yet'",
-    "clean": "rm -rf dist .turbo"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist .turbo coverage"
+  },
+  "dependencies": {
+    "@kitz/types": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "5.7.2"
+    "@types/node": "22.10.2",
+    "@vitest/coverage-v8": "2.1.8",
+    "typescript": "5.7.2",
+    "vitest": "2.1.8"
   }
 }
