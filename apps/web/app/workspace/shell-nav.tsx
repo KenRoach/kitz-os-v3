@@ -48,11 +48,13 @@ export default function ShellNav({
     <aside
       style={{
         width: '14rem',
+        height: '100vh',
         borderRight: '1px solid var(--kitz-border)',
         display: 'flex',
         flexDirection: 'column',
         flexShrink: 0,
         background: 'var(--kitz-bg)',
+        overflowY: 'auto',
       }}
     >
       <div style={{ padding: '1rem', borderBottom: '1px solid var(--kitz-border)' }}>

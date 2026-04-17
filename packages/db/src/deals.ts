@@ -46,9 +46,7 @@ export type DealsStore = {
   update(tenantId: string, id: string, patch: DealPatch): Promise<Deal | null>;
   remove(tenantId: string, id: string): Promise<boolean>;
   count(tenantId: string): Promise<number>;
-  summary(
-    tenantId: string,
-  ): Promise<{
+  summary(tenantId: string): Promise<{
     byStage: Record<DealStage, { count: number; total: number }>;
     pipelineValue: number;
   }>;

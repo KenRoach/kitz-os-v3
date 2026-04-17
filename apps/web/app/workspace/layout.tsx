@@ -22,7 +22,8 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     <div
       style={{
         display: 'flex',
-        minHeight: '100vh',
+        height: '100vh',
+        overflow: 'hidden',
         background: 'var(--kitz-bg)',
       }}
     >
@@ -32,7 +33,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
         role={primary.membership.role}
         email={session.email}
       />
-      <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>{children}</main>
+      <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', height: '100vh' }}>{children}</main>
       <ShellChat />
     </div>
   );
