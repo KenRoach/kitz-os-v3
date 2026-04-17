@@ -8,5 +8,6 @@
 
 export * from './types';
 export * from './interface';
+export type { Contact, ContactInput, ContactPatch, ContactsStore } from './contacts';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

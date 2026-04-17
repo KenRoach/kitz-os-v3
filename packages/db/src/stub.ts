@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { DbClient, ActivityEvent } from './interface';
 import type { AuthOtpRecord, AuthSession, Tenant, UserProfile, WorkspaceMember } from './types';
 import type { UserRole } from '@kitz/types';
+import { createMemoryContactsStore } from './contacts';
 
 const DEFAULT_FREE_CREDITS = 100;
 
@@ -30,7 +31,10 @@ export function createStubDb(): DbClient {
     credits: new Map(),
   };
 
+  const contacts = createMemoryContactsStore();
+
   return {
+    contacts,
     async createOtp({ email, codeHash, ttlSeconds }) {
       for (const otp of state.otps.values()) {
         if (otp.email === email && !otp.consumed_at) {
@@ -168,7 +172,7 @@ export function createStubDb(): DbClient {
         lifetimeTopup: 0,
       };
       return {
-        contacts: 0,
+        contacts: await contacts.count(tenantId),
         deals: 0,
         conversations: 0,
         agents: 0,

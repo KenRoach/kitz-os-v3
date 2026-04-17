@@ -1,4 +1,4 @@
-import WorkspacePlaceholder from '../placeholder';
+import ContactsClient from './contacts-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,12 +7,5 @@ export const metadata = {
 };
 
 export default function ContactosPage() {
-  return (
-    <WorkspacePlaceholder
-      command="kitz crm"
-      title="Contactos"
-      description="Gestiona contactos, empresas, etiquetas y actividad."
-      shippingIn="Phase 2 · Module 7"
-    />
-  );
+  return <ContactsClient />;
 }
