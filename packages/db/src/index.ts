@@ -9,5 +9,7 @@
 export * from './types';
 export * from './interface';
 export type { Contact, ContactInput, ContactPatch, ContactsStore } from './contacts';
+export type { Deal, DealInput, DealPatch, DealStage, DealsStore } from './deals';
+export { DEAL_STAGES } from './deals';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

@@ -8,7 +8,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./stub": "./src/stub.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./deal-stages": "./src/deal-stages.ts"
   },
   "scripts": {
     "lint": "echo 'no lint yet'",

@@ -12,6 +12,7 @@ type NavItem = {
 const ITEMS: NavItem[] = [
   { href: '/workspace', label: 'Dashboard' },
   { href: '/workspace/contactos', label: 'Contactos' },
+  { href: '/workspace/ventas', label: 'Ventas' },
   { href: '/workspace/conversaciones', label: 'Conversaciones' },
   { href: '/workspace/agentes', label: 'Agentes' },
   { href: '/workspace/ajustes', label: 'Ajustes' },
