@@ -1,6 +1,26 @@
 import type { AuthOtpRecord, AuthSession, Tenant, UserProfile, WorkspaceMember } from './types';
 import type { UserRole } from '@kitz/types';
 
+export type TenantStats = {
+  contacts: number;
+  deals: number;
+  conversations: number;
+  agents: number;
+  credits: {
+    balance: number;
+    lifetimeTopup: number;
+  };
+};
+
+export type ActivityEvent = {
+  id: string;
+  tenant_id: string;
+  actor: string;
+  action: string;
+  entity: string;
+  created_at: string;
+};
+
 /**
  * Narrow, testable database surface.
  *
@@ -35,7 +55,17 @@ export interface DbClient {
     role?: UserRole;
   }): Promise<{ tenant: Tenant; membership: WorkspaceMember }>;
 
-  // Session (opaque to callers — stub returns an in-memory token)
+  // Dashboard
+  getTenantStats(tenantId: string): Promise<TenantStats>;
+  listRecentActivity(tenantId: string, limit?: number): Promise<ActivityEvent[]>;
+  recordActivity(input: {
+    tenantId: string;
+    actor: string;
+    action: string;
+    entity: string;
+  }): Promise<ActivityEvent>;
+
+  // Session
   createSession(userId: string, email: string): Promise<AuthSession & { token: string }>;
   findSessionByToken(token: string): Promise<AuthSession | null>;
   revokeSession(token: string): Promise<void>;

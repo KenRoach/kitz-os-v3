@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import type { DbClient } from './interface';
+import type { DbClient, ActivityEvent } from './interface';
 import type { AuthOtpRecord, AuthSession, Tenant, UserProfile, WorkspaceMember } from './types';
 import type { UserRole } from '@kitz/types';
+
+const DEFAULT_FREE_CREDITS = 100;
 
 type StubState = {
   otps: Map<string, AuthOtpRecord>;
@@ -9,6 +11,8 @@ type StubState = {
   tenants: Map<string, Tenant>;
   members: Map<string, WorkspaceMember>;
   sessions: Map<string, AuthSession>;
+  activity: ActivityEvent[];
+  credits: Map<string, { balance: number; lifetimeTopup: number }>;
 };
 
 function nowIso(): string {
@@ -22,6 +26,8 @@ export function createStubDb(): DbClient {
     tenants: new Map(),
     members: new Map(),
     sessions: new Map(),
+    activity: [],
+    credits: new Map(),
   };
 
   return {
@@ -141,7 +147,50 @@ export function createStubDb(): DbClient {
       };
       state.tenants.set(tenant.id, tenant);
       state.members.set(membership.id, membership);
+      state.credits.set(tenant.id, {
+        balance: DEFAULT_FREE_CREDITS,
+        lifetimeTopup: DEFAULT_FREE_CREDITS,
+      });
+      state.activity.unshift({
+        id: randomUUID(),
+        tenant_id: tenant.id,
+        actor: ownerUserId,
+        action: 'created_workspace',
+        entity: tenant.slug,
+        created_at: nowIso(),
+      });
       return { tenant, membership };
+    },
+
+    async getTenantStats(tenantId) {
+      const credits = state.credits.get(tenantId) ?? {
+        balance: 0,
+        lifetimeTopup: 0,
+      };
+      return {
+        contacts: 0,
+        deals: 0,
+        conversations: 0,
+        agents: 0,
+        credits,
+      };
+    },
+
+    async listRecentActivity(tenantId, limit = 20) {
+      return state.activity.filter((a) => a.tenant_id === tenantId).slice(0, limit);
+    },
+
+    async recordActivity({ tenantId, actor, action, entity }) {
+      const event: ActivityEvent = {
+        id: randomUUID(),
+        tenant_id: tenantId,
+        actor,
+        action,
+        entity,
+        created_at: nowIso(),
+      };
+      state.activity.unshift(event);
+      return event;
     },
 
     async createSession(userId, email) {
