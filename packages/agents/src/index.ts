@@ -20,3 +20,6 @@ export type { ToolDef, ToolId, ToolScope, ToolCategory } from './tools';
 
 export { BUILTIN_AGENTS } from './personas';
 export type { BuiltInAgent } from './personas';
+
+export { WORK_PACKS, WORK_PACK_SLUGS, getWorkPack } from './work-packs';
+export type { WorkPack, WorkPackSlug, AgentSeed } from './work-packs';

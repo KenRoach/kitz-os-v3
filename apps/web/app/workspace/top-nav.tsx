@@ -29,28 +29,11 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
           display: 'flex',
           alignItems: 'center',
           padding: '0 1rem',
-          gap: '0.75rem',
           borderRight: '1px solid var(--kitz-border)',
           minWidth: '18rem',
           flexShrink: 0,
         }}
       >
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '1.5rem',
-            height: '1.5rem',
-            border: '1px solid var(--kitz-border)',
-            color: 'var(--kitz-text-strong)',
-            fontWeight: 700,
-            fontSize: '0.75rem',
-          }}
-          aria-hidden
-        >
-          K
-        </span>
         <span
           style={{
             color: 'var(--kitz-text-strong)',
@@ -61,9 +44,9 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
             textOverflow: 'ellipsis',
             letterSpacing: '0.01em',
           }}
-          title={`KitZ · ${tenantName}`}
+          title={`KitZ AI Workspace · ${tenantName}`}
         >
-          KitZ
+          KitZ AI Workspace
         </span>
       </div>
 

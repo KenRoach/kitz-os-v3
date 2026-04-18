@@ -1,5 +1,6 @@
 import type { DbClient } from '@kitz/db';
 import type { Tenant, WorkspaceMember } from '@kitz/db/types';
+import { getWorkPack, type WorkPackSlug } from '@kitz/agents/work-packs';
 import { isValidSlug, slugify, suffixSlug } from './slug';
 
 export type CreateWorkspaceInput = {
@@ -8,10 +9,12 @@ export type CreateWorkspaceInput = {
   fullName: string;
   /** Optional explicit slug. If absent, derived from workspaceName. */
   preferredSlug?: string;
+  /** Work-pack slug. Falls back to 'general' if missing or unknown. */
+  workPack?: WorkPackSlug;
 };
 
 export type CreateWorkspaceResult =
-  | { ok: true; tenant: Tenant; membership: WorkspaceMember }
+  | { ok: true; tenant: Tenant; membership: WorkspaceMember; agentsSeeded: number }
   | { ok: false; reason: 'invalid_name' | 'invalid_slug' | 'slug_exhausted' };
 
 const MAX_SLUG_ATTEMPTS = 20;
@@ -34,10 +37,46 @@ export async function resolveUniqueSlug(db: DbClient, desired: string): Promise<
 }
 
 /**
+ * Seed the chosen work-pack's agents into a freshly-created tenant. The
+ * first agent in the pack becomes the active one. Tolerant of partial
+ * failures: returns the count actually created.
+ */
+async function seedPackAgents(
+  db: DbClient,
+  tenantId: string,
+  packSlug: WorkPackSlug,
+): Promise<number> {
+  const pack = getWorkPack(packSlug) ?? getWorkPack('general');
+  if (!pack) return 0;
+
+  let created = 0;
+  let firstSeeded = true;
+  for (const seed of pack.agents) {
+    try {
+      await db.agents.create(tenantId, {
+        slug: seed.slug,
+        name: seed.name,
+        description: seed.description,
+        systemPrompt: seed.systemPrompt,
+        model: seed.defaultModel,
+        tools: [...seed.defaultTools],
+        // The store auto-activates the first agent in an empty tenant; pass
+        // explicit isActive=true on the first to be explicit + future-proof.
+        isActive: firstSeeded,
+      });
+      created += 1;
+      firstSeeded = false;
+    } catch {
+      // Don't block onboarding on a single seed failure (e.g. slug collision
+      // because the same pack was seeded twice in dev).
+    }
+  }
+  return created;
+}
+
+/**
  * Create a workspace for a user: sets profile name, creates tenant + owner
- * membership. Idempotent only in the sense that a second call with the same
- * userId will succeed only if the slug is not taken (we intentionally do not
- * auto-join existing workspaces here).
+ * membership, then seeds the chosen work-pack's agents.
  */
 export async function createWorkspaceForUser(
   db: DbClient,
@@ -66,5 +105,19 @@ export async function createWorkspaceForUser(
     ownerUserId: input.userId,
   });
 
-  return { ok: true, tenant, membership };
+  const packSlug: WorkPackSlug = input.workPack ?? 'general';
+  const agentsSeeded = await seedPackAgents(db, tenant.id, packSlug);
+
+  // Record the pack choice as an activity event so the dashboard log shows
+  // why the agents appeared.
+  if (agentsSeeded > 0) {
+    await db.recordActivity({
+      tenantId: tenant.id,
+      actor: input.userId,
+      action: 'seeded_workpack',
+      entity: packSlug,
+    });
+  }
+
+  return { ok: true, tenant, membership, agentsSeeded };
 }
