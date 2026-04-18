@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useFullscreen } from './fullscreen-context';
 
 const LANGS = ['ES', 'EN', 'PT'] as const;
@@ -20,6 +21,36 @@ const THEME_KEY = 'kitz-theme';
 function isLang(value: string | null): value is Lang {
   return value === 'ES' || value === 'EN' || value === 'PT';
 }
+
+/** Icon button style matched to the chat attachment buttons. */
+function iconBtnStyle(active: boolean): React.CSSProperties {
+  return {
+    background: active ? 'var(--kitz-text-strong)' : 'transparent',
+    color: active ? 'var(--kitz-bg)' : 'var(--kitz-text)',
+    border: '1px solid var(--kitz-border)',
+    cursor: 'pointer',
+    padding: '0.3rem 0.45rem',
+    fontFamily: 'var(--kitz-font-mono)',
+    fontSize: '0.7rem',
+    lineHeight: 1,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '1.75rem',
+    height: '1.75rem',
+  };
+}
+
+const iconSvgProps = {
+  width: 14,
+  height: 14,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.75,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+};
 
 export default function ShellNavFooter({
   tenantSlug,
@@ -210,23 +241,31 @@ export default function ShellNavFooter({
           })}
         </div>
 
-        <div style={{ display: 'flex', gap: '0.25rem' }}>
+        <div style={{ display: 'flex', gap: '0.3rem' }}>
           <button
             type="button"
             onClick={toggleTheme}
             aria-label={isDark ? 'Modo claro' : 'Modo oscuro'}
             title={isDark ? 'Modo claro' : 'Modo oscuro'}
-            style={{
-              background: 'transparent',
-              border: '1px solid var(--kitz-border)',
-              cursor: 'pointer',
-              color: 'var(--kitz-text-dim)',
-              fontFamily: 'var(--kitz-font-mono)',
-              fontSize: '0.7rem',
-              padding: '0.2rem 0.4rem',
-            }}
+            style={iconBtnStyle(false)}
           >
-            {isDark ? '☀' : '☾'}
+            <svg {...iconSvgProps} aria-hidden>
+              {isDark ? (
+                <>
+                  <circle cx="12" cy="12" r="4" />
+                  <line x1="12" y1="2" x2="12" y2="5" />
+                  <line x1="12" y1="19" x2="12" y2="22" />
+                  <line x1="2" y1="12" x2="5" y2="12" />
+                  <line x1="19" y1="12" x2="22" y2="12" />
+                  <line x1="4.9" y1="4.9" x2="7" y2="7" />
+                  <line x1="17" y1="17" x2="19.1" y2="19.1" />
+                  <line x1="4.9" y1="19.1" x2="7" y2="17" />
+                  <line x1="17" y1="7" x2="19.1" y2="4.9" />
+                </>
+              ) : (
+                <path d="M20 14.5A8 8 0 019.5 4a8.5 8.5 0 1010.5 10.5z" />
+              )}
+            </svg>
           </button>
           <button
             type="button"
@@ -234,29 +273,9 @@ export default function ShellNavFooter({
             aria-pressed={fullscreen}
             aria-label={fullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
             title={fullscreen ? 'Salir (⌘.)' : 'Pantalla completa (⌘.)'}
-            style={{
-              background: fullscreen ? 'var(--kitz-text-strong)' : 'transparent',
-              color: fullscreen ? 'var(--kitz-bg)' : 'var(--kitz-text-dim)',
-              border: '1px solid var(--kitz-border)',
-              cursor: 'pointer',
-              padding: '0.2rem 0.4rem',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minWidth: '1.5rem',
-            }}
+            style={iconBtnStyle(fullscreen)}
           >
-            <svg
-              width={11}
-              height={11}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
+            <svg {...iconSvgProps} aria-hidden>
               {fullscreen ? (
                 <>
                   <polyline points="9 4 9 9 4 9" />
@@ -274,22 +293,27 @@ export default function ShellNavFooter({
               )}
             </svg>
           </button>
+          <Link
+            href="/workspace/ajustes"
+            aria-label="Ajustes"
+            title="Ajustes"
+            style={{ ...iconBtnStyle(false), textDecoration: 'none' }}
+          >
+            <svg {...iconSvgProps} aria-hidden>
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.7 1.7 0 00.34 1.85l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.85-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.85.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.85 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.85l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.85.34h.01a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.85-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.85v.01a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z" />
+            </svg>
+          </Link>
           <button
             type="button"
             onClick={onToggleCollapsed}
             aria-label="Colapsar nav"
             title="Colapsar"
-            style={{
-              background: 'transparent',
-              border: '1px solid var(--kitz-border)',
-              cursor: 'pointer',
-              color: 'var(--kitz-text-dim)',
-              fontFamily: 'var(--kitz-font-mono)',
-              fontSize: '0.7rem',
-              padding: '0.2rem 0.4rem',
-            }}
+            style={iconBtnStyle(false)}
           >
-            ‹
+            <svg {...iconSvgProps} aria-hidden>
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
           </button>
         </div>
       </div>

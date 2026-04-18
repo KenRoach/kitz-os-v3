@@ -56,9 +56,6 @@ export const NAV_BY_MODE: Record<ShellMode, NavSection[]> = {
         { href: '/workspace/reportes', label: 'Reportes', icon: 'report' },
       ],
     },
-    {
-      items: [{ href: '/workspace/ajustes', label: 'Ajustes', icon: 'settings' }],
-    },
   ],
   brain: [
     {
