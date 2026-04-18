@@ -50,6 +50,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@kitz/agents':
+        specifier: workspace:*
+        version: link:../../packages/agents
       '@kitz/config':
         specifier: workspace:*
         version: link:../../packages/config

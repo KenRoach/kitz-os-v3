@@ -4,6 +4,7 @@ import type { AuthOtpRecord, AuthSession, Tenant, UserProfile, WorkspaceMember }
 import type { UserRole } from '@kitz/types';
 import { createMemoryContactsStore } from './contacts';
 import { createMemoryDealsStore } from './deals';
+import { createMemoryAgentsStore } from './agents';
 
 const DEFAULT_FREE_CREDITS = 100;
 
@@ -34,10 +35,12 @@ export function createStubDb(): DbClient {
 
   const contacts = createMemoryContactsStore();
   const deals = createMemoryDealsStore();
+  const agents = createMemoryAgentsStore();
 
   return {
     contacts,
     deals,
+    agents,
     async createOtp({ email, codeHash, ttlSeconds }) {
       for (const otp of state.otps.values()) {
         if (otp.email === email && !otp.consumed_at) {
@@ -178,7 +181,7 @@ export function createStubDb(): DbClient {
         contacts: await contacts.count(tenantId),
         deals: await deals.count(tenantId),
         conversations: 0,
-        agents: 0,
+        agents: await agents.count(tenantId),
         credits,
       };
     },

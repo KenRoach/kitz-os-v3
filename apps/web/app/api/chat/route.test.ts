@@ -89,6 +89,7 @@ describe('POST /api/chat', () => {
       getDb: () => ({
         findPrimaryTenant: async () => ({ tenant: { id: 't-abc' }, membership: {} }),
         recordActivity: recordSpy,
+        agents: { getActive: async () => null },
       }),
     }));
 

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { NAV_BY_MODE, SHELL_MODES, isActive, modeForPath, type ShellMode } from './nav-config';
 import ShellNavFooter from './shell-nav-footer';
 import { useFullscreen } from './fullscreen-context';
+import NavIcon from './nav-icons';
 
 const MODE_ROOT: Record<ShellMode, string> = {
   workspace: '/workspace',
@@ -133,6 +134,7 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
                     key={item.href}
                     href={item.href}
                     title={item.label}
+                    aria-label={item.label}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -141,14 +143,12 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
                       height: '2.5rem',
                       margin: '0 auto',
                       textDecoration: 'none',
-                      fontSize: '0.75rem',
                       color: active ? 'var(--kitz-text-strong)' : 'var(--kitz-text-dim)',
                       border: active ? '1px solid var(--kitz-border)' : '1px solid transparent',
                       background: active ? 'var(--kitz-muted)' : 'transparent',
-                      fontFamily: 'var(--kitz-font-mono)',
                     }}
                   >
-                    {item.label.slice(0, 2).toUpperCase()}
+                    <NavIcon icon={item.icon} size={16} />
                   </Link>
                 );
               }

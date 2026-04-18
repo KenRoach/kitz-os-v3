@@ -2,6 +2,7 @@ import type { AuthOtpRecord, AuthSession, Tenant, UserProfile, WorkspaceMember }
 import type { UserRole } from '@kitz/types';
 import type { ContactsStore } from './contacts';
 import type { DealsStore } from './deals';
+import type { AgentsStore } from './agents';
 
 export type TenantStats = {
   contacts: number;
@@ -70,6 +71,9 @@ export interface DbClient {
   // CRM
   readonly contacts: ContactsStore;
   readonly deals: DealsStore;
+
+  // Brain
+  readonly agents: AgentsStore;
 
   // Session
   createSession(userId: string, email: string): Promise<AuthSession & { token: string }>;

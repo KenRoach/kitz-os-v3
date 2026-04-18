@@ -15,6 +15,7 @@
     "clean": "rm -rf .next .turbo coverage"
   },
   "dependencies": {
+    "@kitz/agents": "workspace:*",
     "@kitz/config": "workspace:*",
     "@kitz/db": "workspace:*",
     "@kitz/i18n": "workspace:*",

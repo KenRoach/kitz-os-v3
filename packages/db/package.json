@@ -9,7 +9,8 @@
     ".": "./src/index.ts",
     "./stub": "./src/stub.ts",
     "./types": "./src/types.ts",
-    "./deal-stages": "./src/deal-stages.ts"
+    "./deal-stages": "./src/deal-stages.ts",
+    "./agent-models": "./src/agent-models.ts"
   },
   "scripts": {
     "lint": "echo 'no lint yet'",

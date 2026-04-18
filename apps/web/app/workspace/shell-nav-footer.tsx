@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useFullscreen } from './fullscreen-context';
 
 const LANGS = ['ES', 'EN', 'PT'] as const;
 type Lang = (typeof LANGS)[number];
@@ -29,6 +30,19 @@ export default function ShellNavFooter({
 }: Props) {
   const [lang, setLang] = useState<Lang>('ES');
   const [isDark, setIsDark] = useState(false);
+  const { fullscreen, toggle: toggleFullscreen } = useFullscreen();
+
+  // Cmd/Ctrl + . toggles fullscreen from anywhere
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === '.') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [toggleFullscreen]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -173,6 +187,52 @@ export default function ShellNavFooter({
             }}
           >
             {isDark ? '☀' : '☾'}
+          </button>
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            aria-pressed={fullscreen}
+            aria-label={fullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            title={fullscreen ? 'Salir (⌘.)' : 'Pantalla completa (⌘.)'}
+            style={{
+              background: fullscreen ? 'var(--kitz-text-strong)' : 'transparent',
+              color: fullscreen ? 'var(--kitz-bg)' : 'var(--kitz-text-dim)',
+              border: '1px solid var(--kitz-border)',
+              cursor: 'pointer',
+              padding: '0.2rem 0.4rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: '1.5rem',
+            }}
+          >
+            <svg
+              width={11}
+              height={11}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              {fullscreen ? (
+                <>
+                  <polyline points="9 4 9 9 4 9" />
+                  <polyline points="15 4 15 9 20 9" />
+                  <polyline points="9 20 9 15 4 15" />
+                  <polyline points="15 20 15 15 20 15" />
+                </>
+              ) : (
+                <>
+                  <polyline points="4 9 4 4 9 4" />
+                  <polyline points="20 9 20 4 15 4" />
+                  <polyline points="4 15 4 20 9 20" />
+                  <polyline points="20 15 20 20 15 20" />
+                </>
+              )}
+            </svg>
           </button>
           <button
             type="button"

@@ -11,5 +11,8 @@ export * from './interface';
 export type { Contact, ContactInput, ContactPatch, ContactsStore } from './contacts';
 export type { Deal, DealInput, DealPatch, DealStage, DealsStore } from './deals';
 export { DEAL_STAGES } from './deals';
+export type { Agent, AgentInput, AgentPatch, AgentsStore } from './agents';
+export { AGENT_MODELS } from './agents';
+export type { AgentModel } from './agents';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

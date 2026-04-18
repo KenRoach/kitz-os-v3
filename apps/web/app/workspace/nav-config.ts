@@ -9,9 +9,28 @@
 
 export type ShellMode = 'workspace' | 'brain' | 'canvas';
 
+export type NavIcon =
+  | 'home'
+  | 'users'
+  | 'sales'
+  | 'chat'
+  | 'calendar'
+  | 'report'
+  | 'settings'
+  | 'brain'
+  | 'persona'
+  | 'agent'
+  | 'skill'
+  | 'book'
+  | 'log'
+  | 'gallery'
+  | 'template'
+  | 'clock';
+
 export type NavItem = {
   href: string;
   label: string;
+  icon: NavIcon;
 };
 
 export type NavSection = {
@@ -29,37 +48,37 @@ export const NAV_BY_MODE: Record<ShellMode, NavSection[]> = {
   workspace: [
     {
       items: [
-        { href: '/workspace', label: 'Dashboard' },
-        { href: '/workspace/contactos', label: 'Contactos' },
-        { href: '/workspace/ventas', label: 'Ventas' },
-        { href: '/workspace/conversaciones', label: 'Conversaciones' },
-        { href: '/workspace/calendario', label: 'Calendario' },
-        { href: '/workspace/reportes', label: 'Reportes' },
+        { href: '/workspace', label: 'Dashboard', icon: 'home' },
+        { href: '/workspace/contactos', label: 'Contactos', icon: 'users' },
+        { href: '/workspace/ventas', label: 'Ventas', icon: 'sales' },
+        { href: '/workspace/conversaciones', label: 'Conversaciones', icon: 'chat' },
+        { href: '/workspace/calendario', label: 'Calendario', icon: 'calendar' },
+        { href: '/workspace/reportes', label: 'Reportes', icon: 'report' },
       ],
     },
     {
-      items: [{ href: '/workspace/ajustes', label: 'Ajustes' }],
+      items: [{ href: '/workspace/ajustes', label: 'Ajustes', icon: 'settings' }],
     },
   ],
   brain: [
     {
       heading: 'Cerebro',
       items: [
-        { href: '/workspace/brain', label: 'Resumen' },
-        { href: '/workspace/brain/personalidad', label: 'Personalidad' },
-        { href: '/workspace/brain/agentes', label: 'Agentes' },
-        { href: '/workspace/brain/skills', label: 'Skills' },
-        { href: '/workspace/brain/conocimiento', label: 'Conocimiento' },
-        { href: '/workspace/brain/registro', label: 'Registro' },
+        { href: '/workspace/brain', label: 'Resumen', icon: 'brain' },
+        { href: '/workspace/brain/personalidad', label: 'Personalidad', icon: 'persona' },
+        { href: '/workspace/brain/agentes', label: 'Agentes', icon: 'agent' },
+        { href: '/workspace/brain/skills', label: 'Skills', icon: 'skill' },
+        { href: '/workspace/brain/conocimiento', label: 'Conocimiento', icon: 'book' },
+        { href: '/workspace/brain/registro', label: 'Registro', icon: 'log' },
       ],
     },
   ],
   canvas: [
     {
       items: [
-        { href: '/workspace/canvas', label: 'Galería' },
-        { href: '/workspace/canvas/plantillas', label: 'Plantillas' },
-        { href: '/workspace/canvas/recientes', label: 'Recientes' },
+        { href: '/workspace/canvas', label: 'Galería', icon: 'gallery' },
+        { href: '/workspace/canvas/plantillas', label: 'Plantillas', icon: 'template' },
+        { href: '/workspace/canvas/recientes', label: 'Recientes', icon: 'clock' },
       ],
     },
   ],

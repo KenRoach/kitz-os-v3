@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
+import { AGENT_MODELS, type AgentModel } from './agent-models';
 
-export const AGENT_MODELS = ['haiku', 'sonnet', 'opus'] as const;
-export type AgentModel = (typeof AGENT_MODELS)[number];
+export { AGENT_MODELS };
+export type { AgentModel };
 
 export type Agent = {
   id: string;

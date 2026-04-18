@@ -63,13 +63,28 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     const token = await signServiceJwt(auth.tenantId, secret);
+    const db = getDb();
+    const activeAgent = await db.agents.getActive(auth.tenantId);
+    const upstreamBody = activeAgent
+      ? {
+          ...parsed,
+          agent: {
+            slug: activeAgent.slug,
+            name: activeAgent.name,
+            systemPrompt: activeAgent.system_prompt,
+            model: activeAgent.model,
+            tools: activeAgent.tools,
+          },
+        }
+      : parsed;
+
     const upstream = await fetch(`${runtimeUrl}/chat`, {
       method: 'POST',
       headers: {
         authorization: `Bearer ${token}`,
         'content-type': 'application/json',
       },
-      body: JSON.stringify(parsed),
+      body: JSON.stringify(upstreamBody),
       cache: 'no-store',
     });
 
