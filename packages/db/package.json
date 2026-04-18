@@ -10,7 +10,8 @@
     "./stub": "./src/stub.ts",
     "./types": "./src/types.ts",
     "./deal-stages": "./src/deal-stages.ts",
-    "./agent-models": "./src/agent-models.ts"
+    "./agent-models": "./src/agent-models.ts",
+    "./skill-kinds": "./src/skill-kinds.ts"
   },
   "scripts": {
     "lint": "echo 'no lint yet'",

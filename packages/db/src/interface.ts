@@ -3,6 +3,7 @@ import type { UserRole } from '@kitz/types';
 import type { ContactsStore } from './contacts';
 import type { DealsStore } from './deals';
 import type { AgentsStore } from './agents';
+import type { SkillsStore } from './skills';
 
 export type TenantStats = {
   contacts: number;
@@ -74,6 +75,7 @@ export interface DbClient {
 
   // Brain
   readonly agents: AgentsStore;
+  readonly skills: SkillsStore;
 
   // Session
   createSession(userId: string, email: string): Promise<AuthSession & { token: string }>;

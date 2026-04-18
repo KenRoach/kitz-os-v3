@@ -14,5 +14,8 @@ export { DEAL_STAGES } from './deals';
 export type { Agent, AgentInput, AgentPatch, AgentsStore } from './agents';
 export { AGENT_MODELS } from './agents';
 export type { AgentModel } from './agents';
+export type { Skill, SkillInput, SkillPatch, SkillsStore } from './skills';
+export { SKILL_KINDS } from './skills';
+export type { SkillKind } from './skills';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

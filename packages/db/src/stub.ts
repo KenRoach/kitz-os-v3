@@ -5,6 +5,7 @@ import type { UserRole } from '@kitz/types';
 import { createMemoryContactsStore } from './contacts';
 import { createMemoryDealsStore } from './deals';
 import { createMemoryAgentsStore } from './agents';
+import { createMemorySkillsStore } from './skills';
 
 const DEFAULT_FREE_CREDITS = 100;
 
@@ -36,11 +37,13 @@ export function createStubDb(): DbClient {
   const contacts = createMemoryContactsStore();
   const deals = createMemoryDealsStore();
   const agents = createMemoryAgentsStore();
+  const skills = createMemorySkillsStore();
 
   return {
     contacts,
     deals,
     agents,
+    skills,
     async createOtp({ email, codeHash, ttlSeconds }) {
       for (const otp of state.otps.values()) {
         if (otp.email === email && !otp.consumed_at) {
