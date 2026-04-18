@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import type { ApiEnvelope } from '@kitz/types';
+import { WORK_PACK_SLUGS } from '@kitz/agents/work-packs';
 import { getDb } from '@/lib/db';
 import { SESSION_COOKIE_NAME, resolveSession } from '@/lib/auth/session';
 import { createWorkspaceForUser } from '@/lib/onboarding/service';
@@ -13,6 +14,7 @@ const bodySchema = z.object({
   workspaceName: z.string().min(2).max(120),
   fullName: z.string().min(2).max(120),
   preferredSlug: z.string().max(64).optional(),
+  workPack: z.enum(WORK_PACK_SLUGS as [string, ...string[]]).optional(),
 });
 
 export async function POST(request: Request): Promise<Response> {
@@ -44,6 +46,7 @@ export async function POST(request: Request): Promise<Response> {
     workspaceName: parsed.workspaceName,
     fullName: parsed.fullName,
     ...(parsed.preferredSlug ? { preferredSlug: parsed.preferredSlug } : {}),
+    ...(parsed.workPack ? { workPack: parsed.workPack as never } : {}),
   });
 
   if (!result.ok) {

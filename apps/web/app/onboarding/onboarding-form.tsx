@@ -1,12 +1,16 @@
 'use client';
 
 import { useMemo, useState, type FormEvent } from 'react';
+import { WORK_PACKS, type WorkPackSlug } from '@kitz/agents/work-packs';
 import { slugify } from '@/lib/onboarding/slug';
+
+const DEFAULT_PACK: WorkPackSlug = 'general';
 
 export default function OnboardingForm() {
   const [workspaceName, setWorkspaceName] = useState('');
   const [fullName, setFullName] = useState('');
   const [customSlug, setCustomSlug] = useState('');
+  const [workPack, setWorkPack] = useState<WorkPackSlug>(DEFAULT_PACK);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,6 +30,7 @@ export default function OnboardingForm() {
         body: JSON.stringify({
           workspaceName,
           fullName,
+          workPack,
           ...(customSlug ? { preferredSlug: customSlug } : {}),
         }),
       });
@@ -107,6 +112,56 @@ export default function OnboardingForm() {
         workspace.kitz.services/
         <span style={{ color: 'var(--kitz-text-strong)' }}>{previewSlug}</span>
       </p>
+
+      <p className="kz-label" style={{ marginBottom: '0.5rem' }}>
+        ¿Qué quieres que haga KitZ por ti?
+      </p>
+      <div
+        role="radiogroup"
+        aria-label="Tipo de trabajo"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(13rem, 1fr))',
+          gap: '0.5rem',
+          marginBottom: '1.25rem',
+        }}
+      >
+        {WORK_PACKS.map((pack) => {
+          const active = pack.slug === workPack;
+          return (
+            <button
+              key={pack.slug}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => setWorkPack(pack.slug)}
+              style={{
+                textAlign: 'left',
+                padding: '0.65rem 0.75rem',
+                border: '1px solid var(--kitz-border)',
+                background: active ? 'var(--kitz-text-strong)' : 'var(--kitz-bg)',
+                color: active ? 'var(--kitz-bg)' : 'var(--kitz-text-strong)',
+                cursor: 'pointer',
+                fontFamily: 'var(--kitz-font-mono)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.25rem',
+              }}
+            >
+              <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{pack.name}</span>
+              <span
+                style={{
+                  fontSize: '0.65rem',
+                  opacity: 0.85,
+                  lineHeight: 1.35,
+                }}
+              >
+                {pack.tagline}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
       {error && (
         <p className="kz-error" style={{ marginBottom: '1rem' }}>
