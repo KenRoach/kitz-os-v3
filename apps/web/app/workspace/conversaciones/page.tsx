@@ -1,4 +1,4 @@
-import WorkspacePlaceholder from '../placeholder';
+import ConversacionesClient from './conversaciones-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,12 +7,5 @@ export const metadata = {
 };
 
 export default function ConversacionesPage() {
-  return (
-    <WorkspacePlaceholder
-      command="kitz inbox"
-      title="Conversaciones"
-      description="Mensajes entrantes, borradores de respuesta y canales conectados."
-      shippingIn="Phase 3 · Module 11 (WhatsApp + drafts)"
-    />
-  );
+  return <ConversacionesClient />;
 }

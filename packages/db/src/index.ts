@@ -17,5 +17,8 @@ export type { AgentModel } from './agents';
 export type { Skill, SkillInput, SkillPatch, SkillsStore } from './skills';
 export { SKILL_KINDS } from './skills';
 export type { SkillKind } from './skills';
+export type { WhatsAppSession, WhatsAppSessionPatch, WhatsAppStore } from './whatsapp';
+export { WHATSAPP_STATUSES } from './whatsapp';
+export type { WhatsAppStatus } from './whatsapp';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

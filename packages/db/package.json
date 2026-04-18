@@ -11,7 +11,8 @@
     "./types": "./src/types.ts",
     "./deal-stages": "./src/deal-stages.ts",
     "./agent-models": "./src/agent-models.ts",
-    "./skill-kinds": "./src/skill-kinds.ts"
+    "./skill-kinds": "./src/skill-kinds.ts",
+    "./whatsapp-statuses": "./src/whatsapp-statuses.ts"
   },
   "scripts": {
     "lint": "echo 'no lint yet'",

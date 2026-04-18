@@ -4,6 +4,7 @@ import type { ContactsStore } from './contacts';
 import type { DealsStore } from './deals';
 import type { AgentsStore } from './agents';
 import type { SkillsStore } from './skills';
+import type { WhatsAppStore } from './whatsapp';
 
 export type TenantStats = {
   contacts: number;
@@ -76,6 +77,9 @@ export interface DbClient {
   // Brain
   readonly agents: AgentsStore;
   readonly skills: SkillsStore;
+
+  // Comms
+  readonly whatsapp: WhatsAppStore;
 
   // Session
   createSession(userId: string, email: string): Promise<AuthSession & { token: string }>;
