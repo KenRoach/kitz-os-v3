@@ -92,12 +92,52 @@ export default function ShellNavFooter({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.5rem',
+          gap: '0.4rem',
         }}
       >
+        {fullscreen && (
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            aria-label="Salir de pantalla completa"
+            title="Salir de pantalla completa (⌘.)"
+            style={{
+              background: 'var(--kitz-text-strong)',
+              color: 'var(--kitz-bg)',
+              border: '1px solid var(--kitz-border)',
+              cursor: 'pointer',
+              padding: '0.25rem 0.35rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: '1.75rem',
+              minHeight: '1.75rem',
+            }}
+          >
+            <svg
+              width={12}
+              height={12}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <polyline points="9 4 9 9 4 9" />
+              <polyline points="15 4 15 9 20 9" />
+              <polyline points="9 20 9 15 4 15" />
+              <polyline points="15 20 15 15 20 15" />
+            </svg>
+          </button>
+        )}
         <button
           type="button"
-          onClick={onToggleCollapsed}
+          onClick={() => {
+            if (fullscreen) toggleFullscreen();
+            onToggleCollapsed();
+          }}
           aria-label="Expandir nav"
           title="Expandir"
           style={{

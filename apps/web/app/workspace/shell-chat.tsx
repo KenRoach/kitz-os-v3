@@ -110,12 +110,17 @@ export default function ShellChat() {
   const isMobile = useIsMobile();
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const { fullscreen } = useFullscreen();
+  const { fullscreen, setFullscreen } = useFullscreen();
 
-  // Fullscreen forces the panel closed; user can re-open via the side tab
-  // and that flips fullscreen off implicitly by the toggle button.
+  // Fullscreen forces the panel closed; clicking the side edge tab
+  // re-opens chat AND exits fullscreen so the user can always recover.
   const open = userOpen && !fullscreen;
   const setOpen = setUserOpen;
+
+  function reopenFromEdge() {
+    if (fullscreen) setFullscreen(false);
+    setUserOpen(true);
+  }
 
   // Cmd/Ctrl + / to toggle
   useEffect(() => {
@@ -205,7 +210,7 @@ export default function ShellChat() {
     return (
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={reopenFromEdge}
         className="kz-button kz-button-ghost"
         style={{
           position: 'fixed',
@@ -218,9 +223,10 @@ export default function ShellChat() {
           fontSize: '0.7rem',
           padding: 0,
           borderRight: 'none',
+          zIndex: 20,
         }}
-        aria-label="Abrir chat de KitZ"
-        title="Abrir chat (⌘/)"
+        aria-label={fullscreen ? 'Salir de pantalla completa y abrir chat' : 'Abrir chat de KitZ'}
+        title={fullscreen ? 'Salir (⌘.) / abrir chat' : 'Abrir chat (⌘/)'}
       >
         CHAT ⌘/
       </button>
