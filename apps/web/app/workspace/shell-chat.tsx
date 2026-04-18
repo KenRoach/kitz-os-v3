@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import ShellChatAttachments, { type Attachment } from './shell-chat-attachments';
 
 type Message = {
   id: string;
   role: 'user' | 'kitz';
   text: string;
   ts: number;
+  attachments?: Attachment[];
 };
 
 type Mode = 'desktop-open' | 'desktop-closed' | 'mobile-open' | 'mobile-closed';
@@ -51,6 +53,7 @@ export default function ShellChat() {
   const [input, setInput] = useState('');
   const [open, setOpen] = useState(true);
   const [sending, setSending] = useState(false);
+  const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const isMobile = useIsMobile();
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -73,16 +76,18 @@ export default function ShellChat() {
 
   async function send(text: string) {
     const trimmed = text.trim();
-    if (!trimmed || sending) return;
+    if ((!trimmed && pendingAttachments.length === 0) || sending) return;
     const userMsg: Message = {
       id: `u-${Date.now()}`,
       role: 'user',
       text: trimmed,
       ts: Date.now(),
+      ...(pendingAttachments.length > 0 ? { attachments: pendingAttachments } : {}),
     };
     const history = messages.map((m) => ({ role: m.role, text: m.text }));
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
+    setPendingAttachments([]);
     setSending(true);
     try {
       const res = await fetch('/api/chat', {
@@ -291,9 +296,48 @@ export default function ShellChat() {
                   lineHeight: 1.5,
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.4rem',
                 }}
               >
-                {m.text}
+                {m.attachments && m.attachments.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                    {m.attachments.map((a) => (
+                      <span
+                        key={a.id}
+                        title={`${a.name} · ${a.mimeType}`}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                          padding: '0.15rem 0.4rem',
+                          border: isUser
+                            ? '1px solid var(--kitz-bg)'
+                            : '1px solid var(--kitz-border)',
+                          fontSize: '0.65rem',
+                          fontFamily: 'var(--kitz-font-mono)',
+                          color: isUser ? 'var(--kitz-bg)' : 'var(--kitz-text)',
+                        }}
+                      >
+                        <span aria-hidden>
+                          {a.kind === 'image' ? '◧' : a.kind === 'audio' ? '◉' : '▤'}
+                        </span>
+                        <span
+                          style={{
+                            maxWidth: '8rem',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {a.name}
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {m.text && <span>{m.text}</span>}
               </div>
             </div>
           );
@@ -368,6 +412,13 @@ export default function ShellChat() {
           background: 'var(--kitz-bg)',
         }}
       >
+        <ShellChatAttachments
+          attachments={pendingAttachments}
+          onAdd={(a) => setPendingAttachments((prev) => [...prev, a])}
+          onRemove={(id) => setPendingAttachments((prev) => prev.filter((x) => x.id !== id))}
+          disabled={sending}
+        />
+
         <div
           style={{
             display: 'flex',
@@ -412,7 +463,7 @@ export default function ShellChat() {
           <button
             type="submit"
             className="kz-button"
-            disabled={!input.trim() || sending || overLimit}
+            disabled={(!input.trim() && pendingAttachments.length === 0) || sending || overLimit}
             style={{
               width: 'auto',
               padding: '0.4rem 0.7rem',
@@ -443,6 +494,16 @@ export default function ShellChat() {
           )}
         </div>
       </form>
+
+      <div
+        aria-hidden
+        style={{
+          height: '1.25rem',
+          flexShrink: 0,
+          borderTop: '1px solid var(--kitz-border)',
+          background: 'var(--kitz-bg)',
+        }}
+      />
     </div>
   );
 
