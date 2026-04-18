@@ -48,6 +48,58 @@ function formatTime(ts: number): string {
   return `${hh}:${mm}`;
 }
 
+function ReferralFooter() {
+  const [copied, setCopied] = useState(false);
+  const link =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/login?ref=kitz`
+      : 'https://kitz.services/login?ref=kitz';
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard blocked — silent */
+    }
+  }
+
+  return (
+    <div
+      style={{
+        flexShrink: 0,
+        borderTop: '1px solid var(--kitz-border)',
+        background: 'var(--kitz-bg)',
+        padding: '0.55rem 0.75rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '0.5rem',
+        fontSize: '0.65rem',
+      }}
+    >
+      <span className="kz-mute" style={{ display: 'inline-flex', gap: '0.4rem' }}>
+        <span aria-hidden>↗</span>
+        <span>Invita a alguien a KitZ</span>
+      </span>
+      <button
+        type="button"
+        onClick={() => void copy()}
+        className="kz-button kz-button-ghost"
+        style={{
+          width: 'auto',
+          padding: '0.25rem 0.55rem',
+          fontSize: '0.6rem',
+          letterSpacing: '0.04em',
+        }}
+      >
+        {copied ? 'Copiado ✓' : 'Copiar enlace'}
+      </button>
+    </div>
+  );
+}
+
 export default function ShellChat() {
   const [messages, setMessages] = useState<Message[]>([SEED_KITZ]);
   const [input, setInput] = useState('');
@@ -320,8 +372,50 @@ export default function ShellChat() {
                           color: isUser ? 'var(--kitz-bg)' : 'var(--kitz-text)',
                         }}
                       >
-                        <span aria-hidden>
-                          {a.kind === 'image' ? '◧' : a.kind === 'audio' ? '◉' : '▤'}
+                        <span aria-hidden style={{ display: 'inline-flex' }}>
+                          {a.kind === 'image' ? (
+                            <svg
+                              width={11}
+                              height={11}
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.75}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect x="3" y="3" width="18" height="18" rx="1" />
+                              <circle cx="9" cy="9" r="1.5" />
+                              <path d="M21 16l-5-5-9 9" />
+                            </svg>
+                          ) : a.kind === 'audio' ? (
+                            <svg
+                              width={11}
+                              height={11}
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.75}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
+                            </svg>
+                          ) : (
+                            <svg
+                              width={11}
+                              height={11}
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.75}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8z" />
+                              <path d="M14 3v5h5" />
+                            </svg>
+                          )}
                         </span>
                         <span
                           style={{
@@ -474,36 +568,21 @@ export default function ShellChat() {
             {sending ? '…' : 'Enviar ⏎'}
           </button>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: '0.62rem',
-            color: 'var(--kitz-text-dim)',
-          }}
-        >
-          <span>Enter envía · Shift+Enter nueva línea</span>
-          {charCount > 0 && (
-            <span
-              style={{
-                color: overLimit ? 'var(--kitz-error)' : 'var(--kitz-text-dim)',
-              }}
-            >
-              {charCount} / {MAX_INPUT}
-            </span>
-          )}
-        </div>
+        {charCount > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              fontSize: '0.62rem',
+              color: overLimit ? 'var(--kitz-error)' : 'var(--kitz-text-dim)',
+            }}
+          >
+            {charCount} / {MAX_INPUT}
+          </div>
+        )}
       </form>
 
-      <div
-        aria-hidden
-        style={{
-          height: '1.25rem',
-          flexShrink: 0,
-          borderTop: '1px solid var(--kitz-border)',
-          background: 'var(--kitz-bg)',
-        }}
-      />
+      <ReferralFooter />
     </div>
   );
 

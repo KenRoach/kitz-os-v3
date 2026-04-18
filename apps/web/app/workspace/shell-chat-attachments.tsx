@@ -154,6 +154,74 @@ export default function ShellChatAttachments({ attachments, onAdd, onRemove, dis
     border: '1px solid var(--kitz-error)',
   };
 
+  const ICON_SIZE = 14;
+  const iconProps = {
+    width: ICON_SIZE,
+    height: ICON_SIZE,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.75,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true,
+  };
+
+  const PaperclipIcon = (
+    <svg {...iconProps}>
+      <path d="M21 12.5l-8.5 8.5a5 5 0 01-7-7l8.5-8.5a3.5 3.5 0 014.95 4.95L10 19.4a2 2 0 01-2.83-2.83l7.78-7.78" />
+    </svg>
+  );
+
+  const CameraIcon = (
+    <svg {...iconProps}>
+      <path d="M3 8h3l2-3h8l2 3h3a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V9a1 1 0 011-1z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
+  );
+
+  const MicIcon = (
+    <svg {...iconProps}>
+      <rect x="9" y="3" width="6" height="12" rx="3" />
+      <path d="M5 11a7 7 0 0014 0" />
+      <line x1="12" y1="18" x2="12" y2="22" />
+      <line x1="9" y1="22" x2="15" y2="22" />
+    </svg>
+  );
+
+  const StopIcon = (
+    <svg {...iconProps}>
+      <rect x="6" y="6" width="12" height="12" rx="1" fill="currentColor" />
+    </svg>
+  );
+
+  const ImageChipIcon = (
+    <svg {...iconProps} width={11} height={11}>
+      <rect x="3" y="3" width="18" height="18" rx="1" />
+      <circle cx="9" cy="9" r="1.5" />
+      <path d="M21 16l-5-5-9 9" />
+    </svg>
+  );
+
+  const FileChipIcon = (
+    <svg {...iconProps} width={11} height={11}>
+      <path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8z" />
+      <path d="M14 3v5h5" />
+    </svg>
+  );
+
+  const AudioChipIcon = (
+    <svg {...iconProps} width={11} height={11}>
+      <path d="M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
+    </svg>
+  );
+
+  function chipIconFor(kind: 'image' | 'audio' | 'file') {
+    if (kind === 'image') return ImageChipIcon;
+    if (kind === 'audio') return AudioChipIcon;
+    return FileChipIcon;
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
       {attachments.length > 0 && (
@@ -175,7 +243,9 @@ export default function ShellChatAttachments({ attachments, onAdd, onRemove, dis
                 maxWidth: '12rem',
               }}
             >
-              <span aria-hidden>{a.kind === 'image' ? '◧' : a.kind === 'audio' ? '◉' : '▤'}</span>
+              <span aria-hidden style={{ display: 'inline-flex' }}>
+                {chipIconFor(a.kind)}
+              </span>
               <span
                 style={{
                   overflow: 'hidden',
@@ -232,7 +302,7 @@ export default function ShellChatAttachments({ attachments, onAdd, onRemove, dis
           title="Adjuntar archivo"
           style={iconBtnStyle}
         >
-          ▤
+          {PaperclipIcon}
         </button>
         <button
           type="button"
@@ -242,7 +312,7 @@ export default function ShellChatAttachments({ attachments, onAdd, onRemove, dis
           title="Tomar foto"
           style={iconBtnStyle}
         >
-          ◧
+          {CameraIcon}
         </button>
         <button
           type="button"
@@ -252,7 +322,7 @@ export default function ShellChatAttachments({ attachments, onAdd, onRemove, dis
           title={recording ? 'Detener · click para enviar' : 'Grabar audio'}
           style={recording ? recordingBtnStyle : iconBtnStyle}
         >
-          {recording ? '■' : '◉'}
+          {recording ? StopIcon : MicIcon}
         </button>
         {error && (
           <span
