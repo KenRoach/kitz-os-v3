@@ -23,10 +23,10 @@ export default function TopNavBattery({ credits, lifetimeTopup }: Props) {
         aria-hidden
         style={{
           position: 'relative',
-          width: '2.25rem',
-          height: '0.875rem',
-          border: `1.5px solid ${low ? 'var(--kitz-error)' : 'var(--kitz-text-strong)'}`,
-          padding: '1px',
+          width: '2.75rem',
+          height: '1.1rem',
+          border: `2px solid ${low ? 'var(--kitz-error)' : 'var(--kitz-text-strong)'}`,
+          padding: '2px',
         }}
       >
         <div
@@ -50,9 +50,11 @@ export default function TopNavBattery({ credits, lifetimeTopup }: Props) {
       </div>
       <span
         style={{
-          fontSize: '0.7rem',
-          color: low ? 'var(--kitz-error)' : 'var(--kitz-text)',
+          fontSize: '0.75rem',
+          fontWeight: 600,
+          color: low ? 'var(--kitz-error)' : 'var(--kitz-text-strong)',
           whiteSpace: 'nowrap',
+          letterSpacing: '0.02em',
         }}
       >
         {credits} cr

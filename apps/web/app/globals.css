@@ -60,6 +60,23 @@ body {
 h1,
 h2,
 h3,
+h4,
+h5,
+h6,
+p,
+li,
+dt,
+dd,
+input,
+textarea,
+select,
+button {
+  font-family: var(--kitz-font-mono);
+}
+
+h1,
+h2,
+h3,
 h4 {
   color: var(--kitz-text-strong);
   font-weight: 600;
