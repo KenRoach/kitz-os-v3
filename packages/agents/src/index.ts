@@ -1,5 +1,22 @@
 /**
- * @kitz/agents — tool registry. One file per tool will live under src/tools/<category>/<tool>.ts.
- * Real registration lands in Phase 3 module 9.
+ * @kitz/agents — tool registry + built-in agent presets.
+ *
+ * Tools declare scopes (read_only / draft / execute / webhook) so the agent
+ * runner knows which require approval before mutating tenant data.
+ *
+ * Built-in personas are seed data; tenants own their copies and can edit them.
  */
-export const KITZ_AGENTS_VERSION = '0.0.0';
+
+export {
+  TOOLS,
+  TOOL_IDS,
+  TOOL_SCOPES,
+  TOOL_CATEGORIES,
+  getToolById,
+  getToolsByIds,
+  filterAllowedTools,
+} from './tools';
+export type { ToolDef, ToolId, ToolScope, ToolCategory } from './tools';
+
+export { BUILTIN_AGENTS } from './personas';
+export type { BuiltInAgent } from './personas';

@@ -59,10 +59,11 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
+            letterSpacing: '0.01em',
           }}
-          title={tenantName}
+          title={`KitZ · ${tenantName}`}
         >
-          {tenantName}
+          KitZ
         </span>
       </div>
 

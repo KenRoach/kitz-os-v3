@@ -6,6 +6,7 @@ type Message = {
   id: string;
   role: 'user' | 'kitz';
   text: string;
+  ts: number;
 };
 
 type Mode = 'desktop-open' | 'desktop-closed' | 'mobile-open' | 'mobile-closed';
@@ -14,6 +15,7 @@ const SEED_KITZ: Message = {
   id: 'seed',
   role: 'kitz',
   text: 'Kitz, tu asistente personal. ¿En qué te ayudo?',
+  ts: Date.now(),
 };
 
 const SUGGESTIONS = [
@@ -22,6 +24,8 @@ const SUGGESTIONS = [
   'Crear una tarea',
   'Resumen semanal',
 ];
+
+const MAX_INPUT = 2000;
 
 function useIsMobile(): boolean {
   const [isMobile, setIsMobile] = useState(false);
@@ -35,12 +39,21 @@ function useIsMobile(): boolean {
   return isMobile;
 }
 
+function formatTime(ts: number): string {
+  const d = new Date(ts);
+  const hh = d.getHours().toString().padStart(2, '0');
+  const mm = d.getMinutes().toString().padStart(2, '0');
+  return `${hh}:${mm}`;
+}
+
 export default function ShellChat() {
   const [messages, setMessages] = useState<Message[]>([SEED_KITZ]);
   const [input, setInput] = useState('');
   const [open, setOpen] = useState(true);
+  const [sending, setSending] = useState(false);
   const isMobile = useIsMobile();
   const listRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Cmd/Ctrl + / to toggle
   useEffect(() => {
@@ -55,15 +68,18 @@ export default function ShellChat() {
   }, []);
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
+    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, open]);
-
-  const [sending, setSending] = useState(false);
 
   async function send(text: string) {
     const trimmed = text.trim();
     if (!trimmed || sending) return;
-    const userMsg: Message = { id: `u-${Date.now()}`, role: 'user', text: trimmed };
+    const userMsg: Message = {
+      id: `u-${Date.now()}`,
+      role: 'user',
+      text: trimmed,
+      ts: Date.now(),
+    };
     const history = messages.map((m) => ({ role: m.role, text: m.text }));
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
@@ -81,20 +97,36 @@ export default function ShellChat() {
       };
       const reply =
         body.success && body.data?.reply ? body.data.reply : `Error: ${body.error ?? 'unknown'}`;
-      setMessages((prev) => [...prev, { id: `k-${Date.now()}`, role: 'kitz', text: reply }]);
+      setMessages((prev) => [
+        ...prev,
+        { id: `k-${Date.now()}`, role: 'kitz', text: reply, ts: Date.now() },
+      ]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: `k-${Date.now()}`, role: 'kitz', text: 'Error de red. Intenta de nuevo.' },
+        {
+          id: `k-${Date.now()}`,
+          role: 'kitz',
+          text: 'Error de red. Intenta de nuevo.',
+          ts: Date.now(),
+        },
       ]);
     } finally {
       setSending(false);
+      requestAnimationFrame(() => inputRef.current?.focus());
     }
   }
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     void send(input);
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      void send(input);
+    }
   }
 
   const mode: Mode = isMobile
@@ -123,7 +155,7 @@ export default function ShellChat() {
           padding: 0,
           borderRight: 'none',
         }}
-        aria-label="Abrir chat de Kitz"
+        aria-label="Abrir chat de KitZ"
         title="Abrir chat (⌘/)"
       >
         CHAT ⌘/
@@ -131,11 +163,16 @@ export default function ShellChat() {
     );
   }
 
+  const userHasSpoken = messages.some((m) => m.role === 'user');
+  const charCount = input.length;
+  const overLimit = charCount > MAX_INPUT;
+
   const panel = (
     <div
       style={{
-        width: mode === 'mobile-open' ? '100%' : 'clamp(18rem, 22vw, 24rem)',
-        height: '100vh',
+        width: mode === 'mobile-open' ? '100%' : 'clamp(20rem, 24vw, 26rem)',
+        height: '100%',
+        minHeight: 0,
         display: 'flex',
         flexDirection: 'column',
         borderLeft: '1px solid var(--kitz-border)',
@@ -145,30 +182,62 @@ export default function ShellChat() {
     >
       <header
         style={{
-          padding: '0.75rem 1rem',
+          padding: '0.6rem 1rem',
           borderBottom: '1px solid var(--kitz-border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexShrink: 0,
+          gap: '0.5rem',
         }}
       >
-        <p className="kz-mute kz-prompt" style={{ margin: 0 }}>
-          kitz chat
-        </p>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          aria-label="Cerrar chat"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--kitz-text-dim)',
-            fontSize: '1rem',
-          }}
-        >
-          ×
-        </button>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', minWidth: 0 }}>
+          <span
+            aria-hidden
+            style={{
+              display: 'inline-block',
+              width: '0.5rem',
+              height: '0.5rem',
+              background: 'var(--kitz-text-strong)',
+              flexShrink: 0,
+            }}
+          />
+          <p
+            style={{
+              margin: 0,
+              color: 'var(--kitz-text-strong)',
+              fontWeight: 600,
+              fontSize: '0.8125rem',
+              letterSpacing: '0.02em',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            KitZ AI Chat
+          </p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <span className="kz-kbd" title="Atajo: Cmd/Ctrl + /" style={{ fontSize: '0.6rem' }}>
+            ⌘/
+          </span>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Cerrar chat"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--kitz-text-dim)',
+              fontSize: '1.1rem',
+              lineHeight: 1,
+              padding: '0 0.25rem',
+            }}
+          >
+            ×
+          </button>
+        </div>
       </header>
 
       <div
@@ -176,72 +245,204 @@ export default function ShellChat() {
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '1rem',
+          padding: '1.25rem 1rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.75rem',
+          gap: '1rem',
+          minHeight: 0,
         }}
       >
-        {messages.map((m) => (
-          <div key={m.id}>
-            <p className="kz-label" style={{ margin: '0 0 0.25rem 0', fontSize: '0.65rem' }}>
-              {m.role === 'user' ? 'TÚ' : 'KITZ'}
-            </p>
-            <p
+        {messages.map((m) => {
+          const isUser = m.role === 'user';
+          return (
+            <div
+              key={m.id}
               style={{
-                margin: 0,
-                color: m.role === 'user' ? 'var(--kitz-text-strong)' : 'var(--kitz-text)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: isUser ? 'flex-end' : 'flex-start',
               }}
             >
-              {m.text}
+              <p
+                className="kz-label"
+                style={{
+                  margin: '0 0 0.25rem 0',
+                  fontSize: '0.6rem',
+                  display: 'flex',
+                  gap: '0.5rem',
+                  alignItems: 'baseline',
+                }}
+              >
+                <span>{isUser ? 'TÚ' : 'KITZ'}</span>
+                <span style={{ color: 'var(--kitz-text-dim)', textTransform: 'none' }}>
+                  {formatTime(m.ts)}
+                </span>
+              </p>
+              <div
+                style={{
+                  maxWidth: '92%',
+                  padding: '0.5rem 0.75rem',
+                  border: isUser
+                    ? '1px solid var(--kitz-text-strong)'
+                    : '1px solid var(--kitz-border)',
+                  background: isUser ? 'var(--kitz-text-strong)' : 'var(--kitz-bg)',
+                  color: isUser ? 'var(--kitz-bg)' : 'var(--kitz-text-strong)',
+                  fontSize: '0.8125rem',
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                }}
+              >
+                {m.text}
+              </div>
+            </div>
+          );
+        })}
+
+        {sending && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <p className="kz-label" style={{ margin: '0 0 0.25rem 0', fontSize: '0.6rem' }}>
+              KITZ
             </p>
+            <div
+              style={{
+                padding: '0.5rem 0.75rem',
+                border: '1px solid var(--kitz-border)',
+                color: 'var(--kitz-text-dim)',
+                fontSize: '0.8125rem',
+              }}
+              aria-live="polite"
+            >
+              <span className="kz-caret">pensando</span>
+            </div>
           </div>
-        ))}
+        )}
       </div>
 
-      <div style={{ padding: '0.5rem 1rem', borderTop: '1px solid var(--kitz-border)' }}>
-        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
-          {SUGGESTIONS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => void send(s)}
-              className="kz-kbd"
-              disabled={sending}
-              style={{
-                cursor: sending ? 'wait' : 'pointer',
-                border: '1px solid var(--kitz-border)',
-                background: 'var(--kitz-bg)',
-                opacity: sending ? 0.5 : 1,
-                fontSize: '0.68rem',
-                padding: '0.2rem 0.4rem',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {s}
-            </button>
-          ))}
+      {!userHasSpoken && (
+        <div
+          style={{
+            padding: '0.5rem 1rem 0.25rem',
+            borderTop: '1px solid var(--kitz-border)',
+            flexShrink: 0,
+          }}
+        >
+          <p className="kz-label" style={{ margin: '0 0 0.4rem 0', fontSize: '0.6rem' }}>
+            Sugerencias
+          </p>
+          <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+            {SUGGESTIONS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => void send(s)}
+                disabled={sending}
+                style={{
+                  cursor: sending ? 'wait' : 'pointer',
+                  border: '1px solid var(--kitz-border)',
+                  background: 'var(--kitz-bg)',
+                  color: 'var(--kitz-text)',
+                  opacity: sending ? 0.5 : 1,
+                  fontFamily: 'var(--kitz-font-mono)',
+                  fontSize: '0.68rem',
+                  padding: '0.25rem 0.45rem',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
-        <form onSubmit={onSubmit} style={{ display: 'flex', gap: '0.5rem' }}>
-          <input
-            type="text"
+      )}
+
+      <form
+        onSubmit={onSubmit}
+        style={{
+          padding: '0.6rem 0.75rem 0.75rem',
+          borderTop: '1px solid var(--kitz-border)',
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.4rem',
+          background: 'var(--kitz-bg)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            gap: '0.4rem',
+            border: '1px solid var(--kitz-border)',
+            padding: '0.35rem 0.4rem 0.35rem 0.6rem',
+            background: 'var(--kitz-bg)',
+          }}
+        >
+          <span
+            aria-hidden
+            className="kz-mute"
+            style={{ fontSize: '0.85rem', lineHeight: '1.5rem', flexShrink: 0 }}
+          >
+            ›
+          </span>
+          <textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={sending ? 'Kitz está pensando…' : 'Escribe a Kitz…'}
-            className="kz-input"
-            style={{ flex: 1 }}
+            onKeyDown={onKeyDown}
+            placeholder={sending ? 'KitZ está pensando…' : 'Escribe a KitZ…'}
             disabled={sending}
+            rows={1}
+            maxLength={MAX_INPUT + 100}
+            style={{
+              flex: 1,
+              minHeight: '1.5rem',
+              maxHeight: '8rem',
+              resize: 'none',
+              border: 'none',
+              outline: 'none',
+              background: 'transparent',
+              color: 'var(--kitz-text-strong)',
+              fontFamily: 'var(--kitz-font-mono)',
+              fontSize: '0.8125rem',
+              lineHeight: 1.5,
+              padding: 0,
+            }}
           />
           <button
             type="submit"
             className="kz-button"
-            style={{ width: 'auto', padding: '0.5rem 1rem', fontSize: '0.75rem' }}
-            disabled={!input.trim() || sending}
+            disabled={!input.trim() || sending || overLimit}
+            style={{
+              width: 'auto',
+              padding: '0.4rem 0.7rem',
+              fontSize: '0.7rem',
+              flexShrink: 0,
+            }}
           >
-            {sending ? '…' : 'Enviar'}
+            {sending ? '…' : 'Enviar ⏎'}
           </button>
-        </form>
-      </div>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '0.62rem',
+            color: 'var(--kitz-text-dim)',
+          }}
+        >
+          <span>Enter envía · Shift+Enter nueva línea</span>
+          {charCount > 0 && (
+            <span
+              style={{
+                color: overLimit ? 'var(--kitz-error)' : 'var(--kitz-text-dim)',
+              }}
+            >
+              {charCount} / {MAX_INPUT}
+            </span>
+          )}
+        </div>
+      </form>
     </div>
   );
 
