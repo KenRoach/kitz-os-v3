@@ -22,28 +22,28 @@ function isLang(value: string | null): value is Lang {
   return value === 'ES' || value === 'EN' || value === 'PT';
 }
 
-/** Icon button style matched to the chat attachment buttons. */
+/** Icon button style matched to the ES/EN/PT language-pill size. */
 function iconBtnStyle(active: boolean): React.CSSProperties {
   return {
     background: active ? 'var(--kitz-text-strong)' : 'transparent',
     color: active ? 'var(--kitz-bg)' : 'var(--kitz-text)',
     border: '1px solid var(--kitz-border)',
     cursor: 'pointer',
-    padding: '0.3rem 0.45rem',
+    padding: '0.2rem 0.4rem',
     fontFamily: 'var(--kitz-font-mono)',
-    fontSize: '0.7rem',
+    fontSize: '0.6rem',
     lineHeight: 1,
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: '1.75rem',
-    height: '1.75rem',
+    minWidth: '1.4rem',
+    height: '1.25rem',
   };
 }
 
 const iconSvgProps = {
-  width: 14,
-  height: 14,
+  width: 11,
+  height: 11,
   viewBox: '0 0 24 24',
   fill: 'none',
   stroke: 'currentColor',
@@ -241,7 +241,7 @@ export default function ShellNavFooter({
           })}
         </div>
 
-        <div style={{ display: 'flex', gap: '0.3rem' }}>
+        <div style={{ display: 'flex', gap: '0.2rem' }}>
           <button
             type="button"
             onClick={toggleTheme}
