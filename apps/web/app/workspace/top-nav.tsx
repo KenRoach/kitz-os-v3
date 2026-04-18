@@ -1,5 +1,6 @@
 import TopNavSearch from './top-nav-search';
 import TopNavBattery from './top-nav-battery';
+import TopNavFullscreen from './top-nav-fullscreen';
 
 type Props = {
   tenantName: string;
@@ -74,9 +75,10 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'stretch',
         }}
       >
+        <TopNavFullscreen />
         <TopNavBattery credits={credits} lifetimeTopup={lifetimeTopup} />
       </div>
     </header>

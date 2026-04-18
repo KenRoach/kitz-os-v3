@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { NAV_BY_MODE, SHELL_MODES, isActive, modeForPath, type ShellMode } from './nav-config';
 import ShellNavFooter from './shell-nav-footer';
+import { useFullscreen } from './fullscreen-context';
 
 const MODE_ROOT: Record<ShellMode, string> = {
   workspace: '/workspace',
@@ -25,18 +26,24 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
   const router = useRouter();
   const mode = useMemo(() => modeForPath(pathname), [pathname]);
   const sections = NAV_BY_MODE[mode];
-  const [collapsed, setCollapsed] = useState(false);
+  const [userCollapsed, setUserCollapsed] = useState(false);
+  const { fullscreen } = useFullscreen();
+
+  // Fullscreen forces collapsed regardless of user pref so the canvas
+  // gets maximum width. User can still toggle their own preference; it
+  // re-applies when fullscreen exits.
+  const collapsed = fullscreen || userCollapsed;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (window.localStorage.getItem(COLLAPSE_KEY) === '1') {
-      setCollapsed(true);
+      setUserCollapsed(true);
     }
   }, []);
 
   function toggleCollapsed() {
-    const next = !collapsed;
-    setCollapsed(next);
+    const next = !userCollapsed;
+    setUserCollapsed(next);
     if (typeof window !== 'undefined') {
       if (next) {
         window.localStorage.setItem(COLLAPSE_KEY, '1');

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import ShellChatAttachments, { type Attachment } from './shell-chat-attachments';
+import { useFullscreen } from './fullscreen-context';
 
 type Message = {
   id: string;
@@ -103,12 +104,18 @@ function ReferralFooter() {
 export default function ShellChat() {
   const [messages, setMessages] = useState<Message[]>([SEED_KITZ]);
   const [input, setInput] = useState('');
-  const [open, setOpen] = useState(true);
+  const [userOpen, setUserOpen] = useState(true);
   const [sending, setSending] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const isMobile = useIsMobile();
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { fullscreen } = useFullscreen();
+
+  // Fullscreen forces the panel closed; user can re-open via the side tab
+  // and that flips fullscreen off implicitly by the toggle button.
+  const open = userOpen && !fullscreen;
+  const setOpen = setUserOpen;
 
   // Cmd/Ctrl + / to toggle
   useEffect(() => {

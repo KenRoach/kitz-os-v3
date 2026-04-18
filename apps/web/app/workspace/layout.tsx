@@ -6,6 +6,7 @@ import { SESSION_COOKIE_NAME, resolveSession } from '@/lib/auth/session';
 import ShellNav from './shell-nav';
 import ShellChat from './shell-chat';
 import TopNav from './top-nav';
+import { FullscreenProvider } from './fullscreen-context';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,29 +23,31 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   const stats = await db.getTenantStats(primary.tenant.id);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        overflow: 'hidden',
-        background: 'var(--kitz-bg)',
-      }}
-    >
-      <TopNav
-        tenantName={primary.tenant.name}
-        credits={stats.credits.balance}
-        lifetimeTopup={stats.credits.lifetimeTopup}
-      />
-      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-        <ShellNav
-          tenantSlug={primary.tenant.slug}
-          role={primary.membership.role}
-          email={session.email}
+    <FullscreenProvider>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          overflow: 'hidden',
+          background: 'var(--kitz-bg)',
+        }}
+      >
+        <TopNav
+          tenantName={primary.tenant.name}
+          credits={stats.credits.balance}
+          lifetimeTopup={stats.credits.lifetimeTopup}
         />
-        <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>{children}</main>
-        <ShellChat />
+        <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+          <ShellNav
+            tenantSlug={primary.tenant.slug}
+            role={primary.membership.role}
+            email={session.email}
+          />
+          <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>{children}</main>
+          <ShellChat />
+        </div>
       </div>
-    </div>
+    </FullscreenProvider>
   );
 }
