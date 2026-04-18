@@ -28,6 +28,16 @@
   --kitz-space-12: 3rem;
 }
 
+html[data-theme='dark'] {
+  --kitz-bg: #0a0a0a;
+  --kitz-border: #e5e5e5;
+  --kitz-text: #b5b5b5;
+  --kitz-text-strong: #f4f4f4;
+  --kitz-text-dim: #6c6c6c;
+  --kitz-muted: #161616;
+  --kitz-accent: #f4f4f4;
+}
+
 *,
 *::before,
 *::after {
