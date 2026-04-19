@@ -94,18 +94,22 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         <TopNavSearch />
       </div>
 
-      {/* Modes + battery — width matches ShellChat so the seam lines up with the chat panel's left edge */}
+      {/* Modes + battery — width matches ShellChat so the seam lines up
+          with the chat panel's left edge. Modes flex to fill all space to
+          the left of the (fixed-width) battery so the three pills are
+          equal-width and the row reads as one tight unit. */}
       <div
         style={{
           width: chatWidth,
           display: 'flex',
           alignItems: 'stretch',
-          justifyContent: 'flex-end',
           borderLeft: '1px solid var(--kitz-line-strong)',
           flexShrink: 0,
         }}
       >
-        <TopNavModes />
+        <div style={{ flex: 1, display: 'flex', minWidth: 0 }}>
+          <TopNavModes />
+        </div>
         <TopNavBattery credits={credits} lifetimeTopup={lifetimeTopup} />
       </div>
     </header>

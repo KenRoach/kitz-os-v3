@@ -27,6 +27,7 @@ export default function TopNavModes() {
         display: 'flex',
         alignItems: 'stretch',
         height: '100%',
+        width: '100%',
       }}
     >
       {SHELL_MODES.map((m, i) => {
@@ -39,6 +40,7 @@ export default function TopNavModes() {
             aria-selected={active}
             onClick={() => router.push(MODE_ROOT[m.id])}
             style={{
+              flex: 1,
               padding: '0 1rem',
               background: active ? 'var(--kitz-ink)' : 'transparent',
               color: active ? 'var(--kitz-bg)' : 'var(--kitz-ink-2)',
@@ -48,11 +50,10 @@ export default function TopNavModes() {
               borderRight: isLast ? 'none' : '1px solid var(--kitz-line)',
               cursor: 'pointer',
               fontFamily: 'var(--kitz-font-mono)',
-              fontSize: '0.65rem',
+              fontSize: '0.7rem',
               fontWeight: active ? 600 : 500,
               textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              minWidth: '5.25rem',
+              letterSpacing: '0.12em',
               transition: 'background-color 120ms ease, color 120ms ease',
             }}
             onMouseEnter={(e) => {
