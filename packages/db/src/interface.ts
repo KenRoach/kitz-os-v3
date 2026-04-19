@@ -57,6 +57,12 @@ export interface DbClient {
   findPrimaryTenant(
     userId: string,
   ): Promise<{ tenant: Tenant; membership: WorkspaceMember } | null>;
+  /** All tenants the user is a member of, oldest first. Used by the
+   * sandbox/live mode switcher to find the user's paired sandbox tenant
+   * (slug suffixed `-sandbox`) without a separate join table. */
+  listTenantsForUser(
+    userId: string,
+  ): Promise<{ tenant: Tenant; membership: WorkspaceMember }[]>;
   findTenantBySlug(slug: string): Promise<Tenant | null>;
   createTenantWithOwner(input: {
     slug: string;

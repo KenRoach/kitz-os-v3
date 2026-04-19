@@ -135,13 +135,30 @@ export function createStubDb(): DbClient {
     },
 
     async findPrimaryTenant(userId) {
+      // Prefer the live tenant (slug NOT ending in `-sandbox`) when the
+      // user has both. Falls back to whatever exists.
+      let fallback: { tenant: Tenant; membership: WorkspaceMember } | null = null;
       for (const member of state.members.values()) {
-        if (member.user_id === userId) {
-          const tenant = state.tenants.get(member.tenant_id);
-          if (tenant) return { tenant, membership: member };
+        if (member.user_id !== userId) continue;
+        const tenant = state.tenants.get(member.tenant_id);
+        if (!tenant) continue;
+        if (!tenant.slug.endsWith('-sandbox')) {
+          return { tenant, membership: member };
         }
+        if (!fallback) fallback = { tenant, membership: member };
       }
-      return null;
+      return fallback;
+    },
+
+    async listTenantsForUser(userId) {
+      const out: { tenant: Tenant; membership: WorkspaceMember }[] = [];
+      for (const member of state.members.values()) {
+        if (member.user_id !== userId) continue;
+        const tenant = state.tenants.get(member.tenant_id);
+        if (tenant) out.push({ tenant, membership: member });
+      }
+      out.sort((a, b) => a.membership.joined_at.localeCompare(b.membership.joined_at));
+      return out;
     },
 
     async findTenantBySlug(slug) {
