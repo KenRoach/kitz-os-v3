@@ -184,13 +184,13 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
         minHeight: 0,
       }}
     >
-      {/* Workspace switcher — height matches TopNav (2.75rem) so the seam
-          between row 1 and row 2 forms a single continuous line. */}
+      {/* Mode label — flush with the rail, no bottom rule and no chevron.
+          Height still matches TopNav so the rail's section list lines up
+          neatly below. */}
       <header
         style={{
           height: '2.75rem',
           padding: '0 0.85rem',
-          borderBottom: '1px solid var(--kitz-line-strong)',
           display: 'flex',
           alignItems: 'center',
           gap: '0.6rem',
@@ -212,7 +212,6 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
         >
           {SHELL_MODE_LABELS[shellMode]}
         </div>
-        <ChevronDown size={14} strokeWidth={1.5} color="var(--kitz-ink-3)" />
       </header>
 
       <nav
