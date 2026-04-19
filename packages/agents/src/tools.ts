@@ -10,7 +10,7 @@
 export const TOOL_SCOPES = ['read_only', 'draft', 'execute', 'webhook'] as const;
 export type ToolScope = (typeof TOOL_SCOPES)[number];
 
-export const TOOL_CATEGORIES = ['crm', 'sales', 'comms', 'calendar', 'system'] as const;
+export const TOOL_CATEGORIES = ['crm', 'sales', 'comms', 'calendar', 'system', 'feedback'] as const;
 export type ToolCategory = (typeof TOOL_CATEGORIES)[number];
 
 export type ToolDef = {
@@ -63,6 +63,14 @@ export const TOOLS: readonly ToolDef[] = [
     description: 'Crea un evento en el calendario del usuario.',
     scope: 'execute',
     category: 'calendar',
+  },
+  {
+    id: 'capture_feedback',
+    name: 'Registrar feedback',
+    description:
+      'Registra un bug, solicitud de funcionalidad o queja del usuario. Siempre úsalo cuando el usuario reporte un problema con KitZ.',
+    scope: 'execute',
+    category: 'feedback',
   },
 ] as const;
 

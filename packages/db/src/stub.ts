@@ -11,6 +11,7 @@ import { createMemoryCalendarStore } from './calendar';
 import { createMemoryInvoicesStore } from './invoices';
 import { createMemoryBillingStore } from './billing';
 import { createMemoryDocumentsStore } from './documents';
+import { createMemoryFeedbackStore } from './feedback';
 
 type StubState = {
   otps: Map<string, AuthOtpRecord>;
@@ -44,6 +45,7 @@ export function createStubDb(): DbClient {
   const invoices = createMemoryInvoicesStore();
   const billing = createMemoryBillingStore();
   const documents = createMemoryDocumentsStore();
+  const feedback = createMemoryFeedbackStore();
 
   return {
     contacts,
@@ -55,6 +57,7 @@ export function createStubDb(): DbClient {
     invoices,
     billing,
     documents,
+    feedback,
     async createOtp({ email, codeHash, ttlSeconds }) {
       for (const otp of state.otps.values()) {
         if (otp.email === email && !otp.consumed_at) {

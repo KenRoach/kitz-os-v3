@@ -9,6 +9,7 @@ import type { CalendarStore } from './calendar';
 import type { InvoicesStore } from './invoices';
 import type { BillingStore } from './billing';
 import type { DocumentsStore } from './documents';
+import type { FeedbackStore } from './feedback';
 
 export type TenantStats = {
   contacts: number;
@@ -94,6 +95,9 @@ export interface DbClient {
 
   // OCR / documents
   readonly documents: DocumentsStore;
+
+  // Product feedback
+  readonly feedback: FeedbackStore;
 
   // Session
   createSession(userId: string, email: string): Promise<AuthSession & { token: string }>;
