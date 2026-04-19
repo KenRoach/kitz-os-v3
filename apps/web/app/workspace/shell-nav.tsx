@@ -19,6 +19,13 @@ import {
 } from 'lucide-react';
 import ShellNavFooter from './shell-nav-footer';
 import { useFullscreen } from './fullscreen-context';
+import { modeForPath } from './nav-config';
+
+const SHELL_MODE_LABELS: Record<'workspace' | 'brain' | 'canvas', string> = {
+  workspace: 'Workspace',
+  brain: 'Brain',
+  canvas: 'Canvas',
+};
 
 const COLLAPSE_KEY = 'kitz-nav-collapsed';
 
@@ -57,8 +64,9 @@ type NavItem = {
  * Ajustes (Settings → Facturación), the same pattern as Stripe keeping
  * billing out of the operational nav.
  */
-export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
+export default function ShellNav({ tenantSlug, role, email }: Props) {
   const pathname = usePathname();
+  const shellMode = modeForPath(pathname);
   const [collapsed, setCollapsed] = useState(false);
   const [productsOpen, setProductsOpen] = useState({
     payments: true,
@@ -229,70 +237,20 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
           flexShrink: 0,
         }}
       >
-        <span
-          aria-hidden
+        <div
           style={{
-            width: '1.5rem',
-            height: '1.5rem',
-            background: 'var(--kitz-ink)',
-            color: 'var(--kitz-bg)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: '0.8rem',
-            flexShrink: 0,
+            minWidth: 0,
+            flex: 1,
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            color: 'var(--kitz-ink)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
+          title={tenantSlug}
         >
-          K
-        </span>
-        <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <div
-            style={{
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              color: 'var(--kitz-ink)',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-            }}
-          >
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>KitZ</span>
-            {mode === 'sandbox' && (
-              <span
-                style={{
-                  padding: '1px 5px',
-                  fontSize: '0.55rem',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: '#0e1f33',
-                  background: '#e8eef6',
-                  border: '1px solid #c9d6e8',
-                  fontWeight: 700,
-                  flexShrink: 0,
-                }}
-              >
-                Sandbox
-              </span>
-            )}
-          </div>
-          <div
-            style={{
-              fontSize: '0.65rem',
-              color: 'var(--kitz-ink-3)',
-              letterSpacing: '0.04em',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              fontVariantLigatures: 'none',
-            }}
-            title={tenantSlug}
-          >
-            {tenantSlug.replace(/-sandbox$/, '').replace(/-(\d+)$/, '')}
-          </div>
+          {SHELL_MODE_LABELS[shellMode]}
         </div>
         <ChevronDown size={14} strokeWidth={1.5} color="var(--kitz-ink-3)" />
       </header>

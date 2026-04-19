@@ -34,14 +34,14 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         background: 'var(--kitz-bg)',
       }}
     >
-      {/* Brand-prefix slot — width matches ShellNav so the right edge aligns
-          with the rail's right edge. Left intentionally minimal: brand
-          identity lives in the rail's workspace switcher below. */}
+      {/* Brand block — K monogram + KitZ wordmark. Width matches ShellNav
+          so the right edge aligns with the rail's right edge below. */}
       <div
         style={{
           width: railWidth,
           display: 'flex',
           alignItems: 'center',
+          gap: '0.6rem',
           padding: '0 1rem',
           borderRight: '1px solid var(--kitz-line-strong)',
           flexShrink: 0,
@@ -49,17 +49,35 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         title={tenantName}
       >
         <span
+          aria-hidden
           style={{
-            color: 'var(--kitz-ink-3)',
-            fontSize: '0.7rem',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
+            width: '1.5rem',
+            height: '1.5rem',
+            background: 'var(--kitz-ink)',
+            color: 'var(--kitz-bg)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            flexShrink: 0,
+            lineHeight: 1,
+          }}
+        >
+          K
+        </span>
+        <span
+          style={{
+            color: 'var(--kitz-ink)',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            letterSpacing: '0.01em',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}
         >
-          KitZ · Workspace
+          KitZ
         </span>
       </div>
 
