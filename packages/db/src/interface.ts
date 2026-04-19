@@ -8,6 +8,7 @@ import type { WhatsAppStore } from './whatsapp';
 import type { CalendarStore } from './calendar';
 import type { InvoicesStore } from './invoices';
 import type { BillingStore } from './billing';
+import type { DocumentsStore } from './documents';
 
 export type TenantStats = {
   contacts: number;
@@ -90,6 +91,9 @@ export interface DbClient {
 
   // Billing
   readonly billing: BillingStore;
+
+  // OCR / documents
+  readonly documents: DocumentsStore;
 
   // Session
   createSession(userId: string, email: string): Promise<AuthSession & { token: string }>;

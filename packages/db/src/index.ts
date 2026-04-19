@@ -53,5 +53,18 @@ export {
   BILLING_TOPUP_PACKS,
   findTopupPack,
 } from './billing-plans';
+export type {
+  DocumentRecord,
+  DocumentInput,
+  DocumentPatch,
+  DocumentsStore,
+} from './documents';
+export type { DocumentKind, DocumentStatus } from './document-kinds';
+export {
+  DOCUMENT_KINDS,
+  DOCUMENT_STATUSES,
+  DOCUMENT_KIND_LABELS,
+  DOCUMENT_STATUS_LABELS,
+} from './document-kinds';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

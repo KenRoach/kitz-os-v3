@@ -10,6 +10,7 @@ import { createMemoryWhatsAppStore } from './whatsapp';
 import { createMemoryCalendarStore } from './calendar';
 import { createMemoryInvoicesStore } from './invoices';
 import { createMemoryBillingStore } from './billing';
+import { createMemoryDocumentsStore } from './documents';
 
 type StubState = {
   otps: Map<string, AuthOtpRecord>;
@@ -42,6 +43,7 @@ export function createStubDb(): DbClient {
   const calendar = createMemoryCalendarStore();
   const invoices = createMemoryInvoicesStore();
   const billing = createMemoryBillingStore();
+  const documents = createMemoryDocumentsStore();
 
   return {
     contacts,
@@ -52,6 +54,7 @@ export function createStubDb(): DbClient {
     calendar,
     invoices,
     billing,
+    documents,
     async createOtp({ email, codeHash, ttlSeconds }) {
       for (const otp of state.otps.values()) {
         if (otp.email === email && !otp.consumed_at) {

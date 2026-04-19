@@ -76,6 +76,7 @@ export const NAV_BY_MODE: Record<ShellMode, NavSection[]> = {
     {
       items: [
         { href: '/workspace/canvas', label: 'Galería', icon: 'gallery' },
+        { href: '/workspace/canvas/documentos', label: 'Documentos', icon: 'book' },
         { href: '/workspace/canvas/plantillas', label: 'Plantillas', icon: 'template' },
         { href: '/workspace/canvas/recientes', label: 'Recientes', icon: 'clock' },
       ],

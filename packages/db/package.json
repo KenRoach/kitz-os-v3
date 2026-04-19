@@ -14,7 +14,8 @@
     "./skill-kinds": "./src/skill-kinds.ts",
     "./whatsapp-statuses": "./src/whatsapp-statuses.ts",
     "./invoice-constants": "./src/invoice-constants.ts",
-    "./billing-plans": "./src/billing-plans.ts"
+    "./billing-plans": "./src/billing-plans.ts",
+    "./document-kinds": "./src/document-kinds.ts"
   },
   "scripts": {
     "lint": "echo 'no lint yet'",
