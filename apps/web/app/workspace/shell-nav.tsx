@@ -5,17 +5,25 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Home,
-  Wallet,
-  ArrowRightLeft,
   Users,
   Package,
   Plug,
-  Repeat,
   CreditCard,
   Receipt,
   BarChart3,
   MoreHorizontal,
   ChevronDown,
+  Brain,
+  Sparkles,
+  Bot,
+  BookOpen,
+  ScrollText,
+  Image as ImageIcon,
+  LayoutTemplate,
+  Clock,
+  FileText,
+  Calendar,
+  MessageSquare,
 } from 'lucide-react';
 import ShellNavFooter from './shell-nav-footer';
 import { useFullscreen } from './fullscreen-context';
@@ -95,57 +103,9 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
 
   if (fullscreen) return null;
 
-  // Operational entries — daily flow. Billing intentionally excluded:
-  // it lives under Ajustes (Settings), not on the rail, the same way Stripe
-  // keeps account/billing tucked into a settings surface rather than the
-  // top-level nav.
-  const pinned: NavItem[] = [
-    { href: '/workspace', label: 'Inicio', icon: Home },
-    { href: '/workspace/contactos', label: 'Clientes', icon: Users },
-    { href: '/workspace/conversaciones', label: 'Conversaciones', icon: ArrowRightLeft },
-    { href: '/workspace/calendario', label: 'Calendario', icon: Home },
-    { href: '/workspace/canvas/documentos', label: 'Documentos', icon: Package },
-  ];
-
-  const shortcuts: NavItem[] = [
-    { href: '/workspace/conversaciones', label: 'Conectar WhatsApp', icon: Plug },
-    { href: '/workspace/cotizaciones', label: 'Nueva cotización', icon: Receipt },
-  ];
-
-  // Add-ons = optional modules the user can expand into. Each group has a
-  // single coherent purpose; landing on the group root is always valid.
-  const addOnGroups: {
-    key: keyof typeof productsOpen;
-    label: string;
-    icon: typeof Home;
-    items: NavItem[];
-  }[] = [
-    {
-      key: 'payments',
-      label: 'Ventas',
-      icon: CreditCard,
-      items: [
-        { href: '/workspace/cotizaciones', label: 'Cotizaciones' },
-        { href: '/workspace/ventas', label: 'Pipeline' },
-      ].map((i) => ({ ...i, icon: Receipt })),
-    },
-    {
-      key: 'reporting',
-      label: 'Reportes',
-      icon: BarChart3,
-      items: [{ href: '/workspace/reportes', label: 'Resumen', icon: BarChart3 }],
-    },
-    {
-      key: 'more',
-      label: 'Brain',
-      icon: MoreHorizontal,
-      items: [
-        { href: '/workspace/brain', label: 'Resumen' },
-        { href: '/workspace/brain/agentes', label: 'Agentes' },
-        { href: '/workspace/brain/skills', label: 'Skills' },
-      ].map((i) => ({ ...i, icon: Home })),
-    },
-  ];
+  // Mode-aware nav: WORKSPACE = daily ops, BRAIN = AI configuration,
+  // CANVAS = artifacts. Clicking the top-right mode pill swaps these.
+  const { pinned, shortcuts, addOnGroups } = railModelForMode(shellMode);
 
   const isActive = (href: string) =>
     href === pathname || (href !== '/workspace' && pathname.startsWith(`${href}/`));
@@ -360,6 +320,99 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
       />
     </aside>
   );
+}
+
+type AddOnGroup = {
+  key: 'payments' | 'reporting' | 'more';
+  label: string;
+  icon: typeof Home;
+  items: NavItem[];
+};
+
+type RailModel = {
+  pinned: NavItem[];
+  shortcuts: NavItem[];
+  addOnGroups: AddOnGroup[];
+};
+
+/**
+ * Per-mode rail content. The top-right WORKSPACE/BRAIN/CANVAS pills swap
+ * between these — billing intentionally lives under Ajustes (Settings)
+ * and never appears here.
+ */
+function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
+  if (mode === 'brain') {
+    return {
+      pinned: [
+        { href: '/workspace/brain', label: 'Resumen', icon: Brain },
+        { href: '/workspace/brain/personalidad', label: 'Personalidad', icon: Sparkles },
+        { href: '/workspace/brain/agentes', label: 'Agentes', icon: Bot },
+        { href: '/workspace/brain/skills', label: 'Skills', icon: Sparkles },
+        { href: '/workspace/brain/conocimiento', label: 'Conocimiento', icon: BookOpen },
+        { href: '/workspace/brain/registro', label: 'Registro', icon: ScrollText },
+      ],
+      shortcuts: [
+        { href: '/workspace/brain/agentes', label: 'Nuevo agente', icon: Bot },
+        { href: '/workspace/brain/skills', label: 'Nueva skill', icon: Sparkles },
+      ],
+      addOnGroups: [
+        {
+          key: 'more',
+          label: 'Avanzado',
+          icon: MoreHorizontal,
+          items: [
+            { href: '/workspace/brain/registro', label: 'Logs', icon: ScrollText },
+          ],
+        },
+      ],
+    };
+  }
+  if (mode === 'canvas') {
+    return {
+      pinned: [
+        { href: '/workspace/canvas', label: 'Galería', icon: ImageIcon },
+        { href: '/workspace/canvas/documentos', label: 'Documentos', icon: FileText },
+        { href: '/workspace/canvas/plantillas', label: 'Plantillas', icon: LayoutTemplate },
+        { href: '/workspace/canvas/recientes', label: 'Recientes', icon: Clock },
+      ],
+      shortcuts: [
+        { href: '/workspace/canvas/documentos', label: 'Subir documento', icon: FileText },
+        { href: '/workspace/cotizaciones', label: 'Nueva cotización', icon: Receipt },
+      ],
+      addOnGroups: [],
+    };
+  }
+  // Default: workspace
+  return {
+    pinned: [
+      { href: '/workspace', label: 'Inicio', icon: Home },
+      { href: '/workspace/contactos', label: 'Clientes', icon: Users },
+      { href: '/workspace/conversaciones', label: 'Conversaciones', icon: MessageSquare },
+      { href: '/workspace/calendario', label: 'Calendario', icon: Calendar },
+      { href: '/workspace/canvas/documentos', label: 'Documentos', icon: Package },
+    ],
+    shortcuts: [
+      { href: '/workspace/conversaciones', label: 'Conectar WhatsApp', icon: Plug },
+      { href: '/workspace/cotizaciones', label: 'Nueva cotización', icon: Receipt },
+    ],
+    addOnGroups: [
+      {
+        key: 'payments',
+        label: 'Ventas',
+        icon: CreditCard,
+        items: [
+          { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
+          { href: '/workspace/ventas', label: 'Pipeline', icon: BarChart3 },
+        ],
+      },
+      {
+        key: 'reporting',
+        label: 'Reportes',
+        icon: BarChart3,
+        items: [{ href: '/workspace/reportes', label: 'Resumen', icon: BarChart3 }],
+      },
+    ],
+  };
 }
 
 function RailHeading({ children }: { children: React.ReactNode }) {
