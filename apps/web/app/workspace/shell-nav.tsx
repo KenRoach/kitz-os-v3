@@ -44,21 +44,24 @@ type NavItem = {
  * Stripe-shape left rail in KitZ vocabulary.
  *
  *   ┌──────────────────────┐
- *   │ Workspace switcher   │  KitZ sandbox / live + slug
+ *   │ Workspace switcher   │  KitZ + sandbox tag + slug
  *   ├──────────────────────┤
- *   │ Pinned               │  Inicio · Saldo · Movimientos · Clientes · Catálogo
- *   │ Atajos               │  Conectar WhatsApp · Suscripciones
- *   │ Productos            │  Pagos / Facturación / Reportes / Más  (collapsible)
+ *   │ Pinned               │  Daily ops: Inicio · Clientes · Conversaciones · Calendario · Documentos
+ *   │ Atajos               │  One-click: Conectar WhatsApp · Nueva cotización
+ *   │ Add-ons              │  Optional modules: Ventas / Reportes / Brain  (collapsible)
  *   ├──────────────────────┤
  *   │ Footer               │  ES/EN/PT · theme · fullscreen · settings · collapse
  *   └──────────────────────┘
+ *
+ * Billing/Plan/Battery intentionally NOT in the rail — those live under
+ * Ajustes (Settings → Facturación), the same pattern as Stripe keeping
+ * billing out of the operational nav.
  */
 export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [productsOpen, setProductsOpen] = useState({
-    payments: false,
-    billing: true,
+    payments: true,
     reporting: false,
     more: false,
   });
@@ -84,20 +87,26 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
 
   if (fullscreen) return null;
 
+  // Operational entries — daily flow. Billing intentionally excluded:
+  // it lives under Ajustes (Settings), not on the rail, the same way Stripe
+  // keeps account/billing tucked into a settings surface rather than the
+  // top-level nav.
   const pinned: NavItem[] = [
     { href: '/workspace', label: 'Inicio', icon: Home },
-    { href: '/workspace/ajustes/facturacion', label: 'Saldo', icon: Wallet },
-    { href: '/workspace/conversaciones', label: 'Movimientos', icon: ArrowRightLeft },
     { href: '/workspace/contactos', label: 'Clientes', icon: Users },
-    { href: '/workspace/canvas/documentos', label: 'Catálogo', icon: Package },
+    { href: '/workspace/conversaciones', label: 'Conversaciones', icon: ArrowRightLeft },
+    { href: '/workspace/calendario', label: 'Calendario', icon: Home },
+    { href: '/workspace/canvas/documentos', label: 'Documentos', icon: Package },
   ];
 
   const shortcuts: NavItem[] = [
     { href: '/workspace/conversaciones', label: 'Conectar WhatsApp', icon: Plug },
-    { href: '/workspace/ajustes/facturacion', label: 'Suscripciones', icon: Repeat },
+    { href: '/workspace/cotizaciones', label: 'Nueva cotización', icon: Receipt },
   ];
 
-  const productGroups: {
+  // Add-ons = optional modules the user can expand into. Each group has a
+  // single coherent purpose; landing on the group root is always valid.
+  const addOnGroups: {
     key: keyof typeof productsOpen;
     label: string;
     icon: typeof Home;
@@ -105,21 +114,12 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
   }[] = [
     {
       key: 'payments',
-      label: 'Pagos',
+      label: 'Ventas',
       icon: CreditCard,
       items: [
-        { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
-        { href: '/workspace/ventas', label: 'Tratos', icon: BarChart3 },
-      ],
-    },
-    {
-      key: 'billing',
-      label: 'Facturación',
-      icon: Receipt,
-      items: [
-        { href: '/workspace/cotizaciones', label: 'Facturas', icon: Receipt },
-        { href: '/workspace/ajustes/facturacion', label: 'Plan & batería', icon: Wallet },
-      ],
+        { href: '/workspace/cotizaciones', label: 'Cotizaciones' },
+        { href: '/workspace/ventas', label: 'Pipeline' },
+      ].map((i) => ({ ...i, icon: Receipt })),
     },
     {
       key: 'reporting',
@@ -129,16 +129,13 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
     },
     {
       key: 'more',
-      label: 'Más',
+      label: 'Brain',
       icon: MoreHorizontal,
       items: [
-        { href: '/workspace/calendario', label: 'Calendario', icon: Home },
-        { href: '/workspace/brain', label: 'Brain', icon: Home },
-        { href: '/workspace/brain/agentes', label: 'Agentes', icon: Home },
-        { href: '/workspace/brain/skills', label: 'Skills', icon: Home },
-        { href: '/workspace/canvas/documentos', label: 'Documentos / OCR', icon: Home },
-        { href: '/workspace/preview', label: 'Preview (proto)', icon: Home },
-      ],
+        { href: '/workspace/brain', label: 'Resumen' },
+        { href: '/workspace/brain/agentes', label: 'Agentes' },
+        { href: '/workspace/brain/skills', label: 'Skills' },
+      ].map((i) => ({ ...i, icon: Home })),
     },
   ];
 
@@ -249,7 +246,7 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
         >
           K
         </span>
-        <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <div
             style={{
               fontSize: '0.8rem',
@@ -258,9 +255,29 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
             }}
           >
-            {mode === 'sandbox' ? 'KitZ sandbox' : 'KitZ'}
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>KitZ</span>
+            {mode === 'sandbox' && (
+              <span
+                style={{
+                  padding: '1px 5px',
+                  fontSize: '0.55rem',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: '#0e1f33',
+                  background: '#e8eef6',
+                  border: '1px solid #c9d6e8',
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}
+              >
+                Sandbox
+              </span>
+            )}
           </div>
           <div
             style={{
@@ -270,9 +287,11 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
+              fontVariantLigatures: 'none',
             }}
+            title={tenantSlug}
           >
-            {tenantSlug}
+            {tenantSlug.replace(/-sandbox$/, '').replace(/-(\d+)$/, '')}
           </div>
         </div>
         <ChevronDown size={14} strokeWidth={1.5} color="var(--kitz-ink-3)" />
@@ -303,10 +322,10 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
           ))}
         </div>
 
-        {/* Products */}
+        {/* Add-ons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-          <RailHeading>Productos</RailHeading>
-          {productGroups.map((group) => {
+          <RailHeading>Add-ons</RailHeading>
+          {addOnGroups.map((group) => {
             const Icon = group.icon;
             const open = productsOpen[group.key];
             return (

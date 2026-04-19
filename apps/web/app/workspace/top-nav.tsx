@@ -34,7 +34,9 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         background: 'var(--kitz-bg)',
       }}
     >
-      {/* Brand — width matches ShellNav so its right edge aligns with the rail's right edge */}
+      {/* Brand-prefix slot — width matches ShellNav so the right edge aligns
+          with the rail's right edge. Left intentionally minimal: brand
+          identity lives in the rail's workspace switcher below. */}
       <div
         style={{
           width: railWidth,
@@ -44,20 +46,20 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
           borderRight: '1px solid var(--kitz-line-strong)',
           flexShrink: 0,
         }}
+        title={tenantName}
       >
         <span
           style={{
-            color: 'var(--kitz-ink)',
-            fontWeight: 600,
-            fontSize: '0.875rem',
+            color: 'var(--kitz-ink-3)',
+            fontSize: '0.7rem',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            letterSpacing: '0.01em',
           }}
-          title={`KitZ AI Workspace · ${tenantName}`}
         >
-          KitZ AI Workspace
+          KitZ · Workspace
         </span>
       </div>
 
