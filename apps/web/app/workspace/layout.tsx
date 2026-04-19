@@ -3,13 +3,23 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import { SESSION_COOKIE_NAME, resolveSession } from '@/lib/auth/session';
-import ChatRail from './chat-rail';
-import InspectorRail from './inspector-rail';
+import ShellNav from './shell-nav';
+import ShellChat from './shell-chat';
 import TopNav from './top-nav';
 import { FullscreenProvider } from './fullscreen-context';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Workspace shell — three columns:
+ *   ┌──────────┬────────────────┬──────────┐
+ *   │ ShellNav │  page content  │ ShellChat│
+ *   └──────────┴────────────────┴──────────┘
+ *
+ * Left rail (ShellNav) swaps its items based on the active mode
+ * (Workspace / Brain / Canvas) — see nav-config.ts. Mode pills live
+ * in TopNav on the far right next to the battery.
+ */
 export default async function WorkspaceLayout({ children }: { children: ReactNode }) {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -39,13 +49,13 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
           lifetimeTopup={stats.credits.lifetimeTopup}
         />
         <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-          <ChatRail
+          <ShellNav
             tenantSlug={primary.tenant.slug}
             role={primary.membership.role}
             email={session.email}
           />
           <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>{children}</main>
-          <InspectorRail />
+          <ShellChat />
         </div>
       </div>
     </FullscreenProvider>

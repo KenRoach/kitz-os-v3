@@ -2,17 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { NAV_BY_MODE, SHELL_MODES, isActive, modeForPath, type ShellMode } from './nav-config';
+import { usePathname } from 'next/navigation';
+import { NAV_BY_MODE, isActive, modeForPath } from './nav-config';
 import ShellNavFooter from './shell-nav-footer';
 import { useFullscreen } from './fullscreen-context';
 import NavIcon from './nav-icons';
-
-const MODE_ROOT: Record<ShellMode, string> = {
-  workspace: '/workspace',
-  brain: '/workspace/brain',
-  canvas: '/workspace/canvas',
-};
 
 const COLLAPSE_KEY = 'kitz-nav-collapsed';
 
@@ -24,7 +18,6 @@ type Props = {
 
 export default function ShellNav({ tenantSlug, role, email }: Props) {
   const pathname = usePathname();
-  const router = useRouter();
   const mode = useMemo(() => modeForPath(pathname), [pathname]);
   const sections = NAV_BY_MODE[mode];
   const [userCollapsed, setUserCollapsed] = useState(false);
@@ -68,45 +61,6 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
         transition: 'width 0.18s ease',
       }}
     >
-      {!collapsed && (
-        <div
-          role="tablist"
-          aria-label="Modo del espacio"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${SHELL_MODES.length}, 1fr)`,
-            borderBottom: '1px solid var(--kitz-border)',
-          }}
-        >
-          {SHELL_MODES.map((m, i) => {
-            const active = m.id === mode;
-            const isLast = i === SHELL_MODES.length - 1;
-            return (
-              <button
-                key={m.id}
-                role="tab"
-                aria-selected={active}
-                onClick={() => router.push(MODE_ROOT[m.id])}
-                style={{
-                  padding: '0.6rem 0.5rem',
-                  background: active ? 'var(--kitz-text-strong)' : 'var(--kitz-bg)',
-                  color: active ? 'var(--kitz-bg)' : 'var(--kitz-text)',
-                  border: 'none',
-                  borderRight: isLast ? 'none' : '1px solid var(--kitz-border)',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--kitz-font-mono)',
-                  fontSize: '0.75rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                {m.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
       <nav
         style={{
           flex: 1,

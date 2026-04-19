@@ -11,8 +11,9 @@ const MODE_ROOT: Record<ShellMode, string> = {
 };
 
 /**
- * Workspace / Brain / Canvas mode pills, rendered inside TopNav.
- * Replaces the old left-rail mode tabs now that the left rail is the chat.
+ * Workspace / Brain / Canvas mode pills, rendered on the far right of
+ * TopNav next to the battery. Switching mode swaps the left-rail nav
+ * items via NAV_BY_MODE in nav-config.ts.
  */
 export default function TopNavModes() {
   const pathname = usePathname();
@@ -28,8 +29,9 @@ export default function TopNavModes() {
         height: '100%',
       }}
     >
-      {SHELL_MODES.map((m) => {
+      {SHELL_MODES.map((m, i) => {
         const active = m.id === mode;
+        const isLast = i === SHELL_MODES.length - 1;
         return (
           <button
             key={m.id}
@@ -37,17 +39,20 @@ export default function TopNavModes() {
             aria-selected={active}
             onClick={() => router.push(MODE_ROOT[m.id])}
             style={{
-              padding: '0 0.75rem',
+              padding: '0 0.85rem',
               background: active ? 'var(--kitz-text-strong)' : 'transparent',
               color: active ? 'var(--kitz-bg)' : 'var(--kitz-text)',
               border: 'none',
-              borderRight: '1px solid var(--kitz-border)',
+              // Only the last pill needs a right separator; the parent
+              // group already supplies a left border, so no double-seams.
+              borderRight: isLast ? '1px solid var(--kitz-border)' : 'none',
               cursor: 'pointer',
               fontFamily: 'var(--kitz-font-mono)',
               fontSize: '0.65rem',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              minWidth: '4.5rem',
+              minWidth: '4.75rem',
+              transition: 'background-color 120ms ease',
             }}
           >
             {m.label}
