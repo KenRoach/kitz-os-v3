@@ -8,6 +8,7 @@ import { createMemoryAgentsStore } from './agents';
 import { createMemorySkillsStore } from './skills';
 import { createMemoryWhatsAppStore } from './whatsapp';
 import { createMemoryCalendarStore } from './calendar';
+import { createMemoryInvoicesStore } from './invoices';
 
 const DEFAULT_FREE_CREDITS = 100;
 
@@ -42,6 +43,7 @@ export function createStubDb(): DbClient {
   const skills = createMemorySkillsStore();
   const whatsapp = createMemoryWhatsAppStore();
   const calendar = createMemoryCalendarStore();
+  const invoices = createMemoryInvoicesStore();
 
   return {
     contacts,
@@ -50,6 +52,7 @@ export function createStubDb(): DbClient {
     skills,
     whatsapp,
     calendar,
+    invoices,
     async createOtp({ email, codeHash, ttlSeconds }) {
       for (const otp of state.otps.values()) {
         if (otp.email === email && !otp.consumed_at) {

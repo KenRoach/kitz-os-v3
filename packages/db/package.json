@@ -12,7 +12,8 @@
     "./deal-stages": "./src/deal-stages.ts",
     "./agent-models": "./src/agent-models.ts",
     "./skill-kinds": "./src/skill-kinds.ts",
-    "./whatsapp-statuses": "./src/whatsapp-statuses.ts"
+    "./whatsapp-statuses": "./src/whatsapp-statuses.ts",
+    "./invoice-constants": "./src/invoice-constants.ts"
   },
   "scripts": {
     "lint": "echo 'no lint yet'",

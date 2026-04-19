@@ -25,7 +25,8 @@ export type NavIcon =
   | 'log'
   | 'gallery'
   | 'template'
-  | 'clock';
+  | 'clock'
+  | 'invoice';
 
 export type NavItem = {
   href: string;
@@ -53,6 +54,7 @@ export const NAV_BY_MODE: Record<ShellMode, NavSection[]> = {
         { href: '/workspace/ventas', label: 'Ventas', icon: 'sales' },
         { href: '/workspace/conversaciones', label: 'Conversaciones', icon: 'chat' },
         { href: '/workspace/calendario', label: 'Calendario', icon: 'calendar' },
+        { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: 'invoice' },
         { href: '/workspace/reportes', label: 'Reportes', icon: 'report' },
       ],
     },

@@ -26,5 +26,19 @@ export type {
   CalendarEventPatch,
   CalendarStore,
 } from './calendar';
+export type {
+  Invoice,
+  InvoiceInput,
+  InvoicePatch,
+  InvoiceKind,
+  InvoiceStatus,
+  InvoicesStore,
+  LineItem,
+} from './invoices';
+export { INVOICE_KINDS, INVOICE_STATUSES } from './invoices';
+export {
+  INVOICE_KIND_LABELS,
+  INVOICE_STATUS_LABELS,
+} from './invoice-constants';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

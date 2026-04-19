@@ -153,6 +153,15 @@ export default function NavIcon({ icon, size = 16, strokeWidth = 1.6 }: Props) {
           <polyline points="12 7 12 12 16 14" />
         </svg>
       );
+    case 'invoice':
+      return (
+        <svg {...props}>
+          <path d="M6 3h10l4 4v14H6z" />
+          <polyline points="16 3 16 7 20 7" />
+          <line x1="9" y1="12" x2="17" y2="12" />
+          <line x1="9" y1="16" x2="14" y2="16" />
+        </svg>
+      );
     default:
       return null;
   }
