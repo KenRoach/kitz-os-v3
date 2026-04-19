@@ -13,6 +13,7 @@ import ShellNav from './shell-nav';
 import ShellChat from './shell-chat';
 import TopNav from './top-nav';
 import SandboxBanner from './sandbox-banner';
+import SetupGuide from './setup-guide';
 import { FullscreenProvider } from './fullscreen-context';
 
 export const dynamic = 'force-dynamic';
@@ -87,6 +88,8 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
           <ShellChat />
         </div>
       </div>
+      {/* Floating Stripe-style setup checklist (auto-hides when complete) */}
+      <SetupGuide tenantSlug={resolved.tenant.slug} />
     </FullscreenProvider>
   );
 }
