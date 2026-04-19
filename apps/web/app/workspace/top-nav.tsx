@@ -10,12 +10,19 @@ type Props = {
 
 /**
  * Full-width top chrome rendered above the 3-column shell.
- * Layout: [brand] [search] [mode tabs] [battery]
  *
- * Mode tabs sit on the far right next to the battery so the brand keeps
- * the strongest left anchor and the search owns the middle.
+ * Layout: [brand · 17rem] [search · flex] [modes + battery · ~26rem]
+ *
+ * Widths are intentionally locked to the underlying shell columns so the
+ * vertical seams in the TopNav line up exactly with the left rail's right
+ * edge and the chat panel's left edge below.
+ *   - brand block          == ShellNav width (17rem)
+ *   - right group          == ShellChat width (clamp 20–26rem)
  */
 export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
+  const railWidth = '17rem';
+  const chatWidth = 'clamp(20rem, 24vw, 26rem)';
+
   return (
     <header
       style={{
@@ -23,22 +30,24 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         alignItems: 'stretch',
         height: '2.75rem',
         flexShrink: 0,
-        borderBottom: '1px solid var(--kitz-border)',
+        borderBottom: '1px solid var(--kitz-line-strong)',
         background: 'var(--kitz-bg)',
       }}
     >
+      {/* Brand — width matches ShellNav so its right edge aligns with the rail's right edge */}
       <div
         style={{
+          width: railWidth,
           display: 'flex',
           alignItems: 'center',
           padding: '0 1rem',
-          borderRight: '1px solid var(--kitz-border)',
+          borderRight: '1px solid var(--kitz-line-strong)',
           flexShrink: 0,
         }}
       >
         <span
           style={{
-            color: 'var(--kitz-text-strong)',
+            color: 'var(--kitz-ink)',
             fontWeight: 600,
             fontSize: '0.875rem',
             whiteSpace: 'nowrap',
@@ -52,15 +61,27 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         </span>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 1rem' }}>
+      {/* Search — flexes between the two locked columns */}
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 1rem',
+        }}
+      >
         <TopNavSearch />
       </div>
 
+      {/* Modes + battery — width matches ShellChat so the seam lines up with the chat panel's left edge */}
       <div
         style={{
+          width: chatWidth,
           display: 'flex',
           alignItems: 'stretch',
-          borderLeft: '1px solid var(--kitz-border)',
+          justifyContent: 'flex-end',
+          borderLeft: '1px solid var(--kitz-line-strong)',
           flexShrink: 0,
         }}
       >

@@ -219,14 +219,17 @@ export default function ShellNav({ tenantSlug, role, email, mode }: Props) {
         minHeight: 0,
       }}
     >
-      {/* Workspace switcher */}
+      {/* Workspace switcher — height matches TopNav (2.75rem) so the seam
+          between row 1 and row 2 forms a single continuous line. */}
       <header
         style={{
-          padding: '0.75rem 0.85rem',
+          height: '2.75rem',
+          padding: '0 0.85rem',
           borderBottom: '1px solid var(--kitz-line-strong)',
           display: 'flex',
           alignItems: 'center',
           gap: '0.6rem',
+          flexShrink: 0,
         }}
       >
         <span

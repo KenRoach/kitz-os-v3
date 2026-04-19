@@ -29,9 +29,8 @@ export default function TopNavModes() {
         height: '100%',
       }}
     >
-      {SHELL_MODES.map((m, i) => {
+      {SHELL_MODES.map((m) => {
         const active = m.id === mode;
-        const isLast = i === SHELL_MODES.length - 1;
         return (
           <button
             key={m.id}
@@ -40,12 +39,10 @@ export default function TopNavModes() {
             onClick={() => router.push(MODE_ROOT[m.id])}
             style={{
               padding: '0 0.85rem',
-              background: active ? 'var(--kitz-text-strong)' : 'transparent',
-              color: active ? 'var(--kitz-bg)' : 'var(--kitz-text)',
+              background: active ? 'var(--kitz-ink)' : 'transparent',
+              color: active ? 'var(--kitz-bg)' : 'var(--kitz-ink-2)',
               border: 'none',
-              // Only the last pill needs a right separator; the parent
-              // group already supplies a left border, so no double-seams.
-              borderRight: isLast ? '1px solid var(--kitz-border)' : 'none',
+              borderRight: '1px solid var(--kitz-line-strong)',
               cursor: 'pointer',
               fontFamily: 'var(--kitz-font-mono)',
               fontSize: '0.65rem',
