@@ -40,5 +40,18 @@ export {
   INVOICE_KIND_LABELS,
   INVOICE_STATUS_LABELS,
 } from './invoice-constants';
+export type {
+  BillingSubscription,
+  BatteryState,
+  BatteryLedgerEntry,
+  BillingStore,
+} from './billing';
+export type { BillingPlan, PlanSpec, TopupPack } from './billing-plans';
+export {
+  BILLING_PLANS,
+  BILLING_PLAN_SPECS,
+  BILLING_TOPUP_PACKS,
+  findTopupPack,
+} from './billing-plans';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

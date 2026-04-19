@@ -85,11 +85,19 @@ describe('POST /api/chat', () => {
       SESSION_COOKIE_NAME: 'kitz_session',
       resolveSession: async () => ({ user_id: 'u1', email: 'u@x.com' }),
     }));
+    const debitSpy = vi.fn(async () => ({
+      tenant_id: 't-abc',
+      balance: 98,
+      lifetime_topup: 100,
+      lifetime_debit: 2,
+      updated_at: new Date().toISOString(),
+    }));
     vi.doMock('@/lib/db', async () => ({
       getDb: () => ({
         findPrimaryTenant: async () => ({ tenant: { id: 't-abc' }, membership: {} }),
         recordActivity: recordSpy,
         agents: { getActive: async () => null },
+        billing: { debit: debitSpy },
       }),
     }));
 
@@ -124,5 +132,33 @@ describe('POST /api/chat', () => {
       action: 'sent_message',
       entity: 'kitz-chat',
     });
+    expect(debitSpy).toHaveBeenCalledOnce();
+    expect(debitSpy.mock.calls[0]).toEqual(['t-abc', 2, 'chat_message', { agent: 'kitz' }]);
+  });
+
+  it('402 when battery is empty', async () => {
+    vi.doMock('next/headers', () => ({
+      cookies: async () => ({ get: (_: string) => ({ value: 'tok' }) }),
+    }));
+    vi.doMock('@/lib/auth/session', async () => ({
+      SESSION_COOKIE_NAME: 'kitz_session',
+      resolveSession: async () => ({ user_id: 'u1', email: 'u@x.com' }),
+    }));
+    const debitSpy = vi.fn(async () => {
+      throw new Error('insufficient_credits');
+    });
+    vi.doMock('@/lib/db', async () => ({
+      getDb: () => ({
+        findPrimaryTenant: async () => ({ tenant: { id: 't-zero' }, membership: {} }),
+        recordActivity: async () => undefined,
+        agents: { getActive: async () => null },
+        billing: { debit: debitSpy },
+      }),
+    }));
+    const { POST } = await import('./route');
+    const res = await POST(makeReq({ message: 'hola' }));
+    expect(res.status).toBe(402);
+    expect((await res.json()).error).toBe('insufficient_credits');
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 });

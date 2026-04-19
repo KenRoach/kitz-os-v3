@@ -2,11 +2,15 @@ import { describe, it, expect } from 'vitest';
 import { createStubDb } from './stub';
 
 describe('tenant stats + activity', () => {
-  it('returns zero stats before any tenant is created', async () => {
+  it('returns zero CRM counts and the seeded free battery for an unknown tenant', async () => {
     const db = createStubDb();
     const stats = await db.getTenantStats('unknown');
     expect(stats.contacts).toBe(0);
-    expect(stats.credits.balance).toBe(0);
+    expect(stats.deals).toBe(0);
+    expect(stats.agents).toBe(0);
+    // Battery auto-seeds with the free-plan grant on first read.
+    expect(stats.credits.balance).toBe(100);
+    expect(stats.credits.lifetimeTopup).toBe(100);
   });
 
   it('seeds default credits on createTenantWithOwner', async () => {

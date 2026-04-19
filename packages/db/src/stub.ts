@@ -9,8 +9,7 @@ import { createMemorySkillsStore } from './skills';
 import { createMemoryWhatsAppStore } from './whatsapp';
 import { createMemoryCalendarStore } from './calendar';
 import { createMemoryInvoicesStore } from './invoices';
-
-const DEFAULT_FREE_CREDITS = 100;
+import { createMemoryBillingStore } from './billing';
 
 type StubState = {
   otps: Map<string, AuthOtpRecord>;
@@ -19,7 +18,6 @@ type StubState = {
   members: Map<string, WorkspaceMember>;
   sessions: Map<string, AuthSession>;
   activity: ActivityEvent[];
-  credits: Map<string, { balance: number; lifetimeTopup: number }>;
 };
 
 function nowIso(): string {
@@ -34,7 +32,6 @@ export function createStubDb(): DbClient {
     members: new Map(),
     sessions: new Map(),
     activity: [],
-    credits: new Map(),
   };
 
   const contacts = createMemoryContactsStore();
@@ -44,6 +41,7 @@ export function createStubDb(): DbClient {
   const whatsapp = createMemoryWhatsAppStore();
   const calendar = createMemoryCalendarStore();
   const invoices = createMemoryInvoicesStore();
+  const billing = createMemoryBillingStore();
 
   return {
     contacts,
@@ -53,6 +51,7 @@ export function createStubDb(): DbClient {
     whatsapp,
     calendar,
     invoices,
+    billing,
     async createOtp({ email, codeHash, ttlSeconds }) {
       for (const otp of state.otps.values()) {
         if (otp.email === email && !otp.consumed_at) {
@@ -169,10 +168,8 @@ export function createStubDb(): DbClient {
       };
       state.tenants.set(tenant.id, tenant);
       state.members.set(membership.id, membership);
-      state.credits.set(tenant.id, {
-        balance: DEFAULT_FREE_CREDITS,
-        lifetimeTopup: DEFAULT_FREE_CREDITS,
-      });
+      // Eagerly seed the billing battery with the free-plan grant.
+      await billing.getBattery(tenant.id);
       state.activity.unshift({
         id: randomUUID(),
         tenant_id: tenant.id,
@@ -185,16 +182,16 @@ export function createStubDb(): DbClient {
     },
 
     async getTenantStats(tenantId) {
-      const credits = state.credits.get(tenantId) ?? {
-        balance: 0,
-        lifetimeTopup: 0,
-      };
+      const battery = await billing.getBattery(tenantId);
       return {
         contacts: await contacts.count(tenantId),
         deals: await deals.count(tenantId),
         conversations: await whatsapp.countConnected(tenantId),
         agents: await agents.count(tenantId),
-        credits,
+        credits: {
+          balance: battery.balance,
+          lifetimeTopup: battery.lifetime_topup,
+        },
       };
     },
 

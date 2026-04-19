@@ -61,9 +61,28 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json(body, { status: 500 });
   }
 
+  const db = getDb();
+  // Per-message battery debit. Insufficient credits short-circuits the
+  // upstream AI run so we never bill what we can't pay for.
+  const CHAT_COST = 2;
+  try {
+    await db.billing.debit(auth.tenantId, CHAT_COST, 'chat_message', {
+      agent: 'kitz',
+    });
+  } catch (err) {
+    if (err instanceof Error && err.message === 'insufficient_credits') {
+      const body: ApiEnvelope<null> = {
+        success: false,
+        data: null,
+        error: 'insufficient_credits',
+      };
+      return NextResponse.json(body, { status: 402 });
+    }
+    throw err;
+  }
+
   try {
     const token = await signServiceJwt(auth.tenantId, secret);
-    const db = getDb();
     const activeAgent = await db.agents.getActive(auth.tenantId);
     const upstreamBody = activeAgent
       ? {
@@ -91,7 +110,6 @@ export async function POST(request: Request): Promise<Response> {
     const upstreamJson = (await upstream.json()) as unknown;
 
     if (upstream.ok) {
-      const db = getDb();
       await db.recordActivity({
         tenantId: auth.tenantId,
         actor: auth.userId,
