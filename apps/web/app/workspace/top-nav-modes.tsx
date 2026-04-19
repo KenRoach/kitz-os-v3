@@ -28,7 +28,7 @@ export default function TopNavModes() {
         height: '100%',
       }}
     >
-      {SHELL_MODES.map((m, i) => {
+      {SHELL_MODES.map((m) => {
         const active = m.id === mode;
         return (
           <button
@@ -37,18 +37,17 @@ export default function TopNavModes() {
             aria-selected={active}
             onClick={() => router.push(MODE_ROOT[m.id])}
             style={{
-              padding: '0 0.85rem',
+              padding: '0 0.75rem',
               background: active ? 'var(--kitz-text-strong)' : 'transparent',
               color: active ? 'var(--kitz-bg)' : 'var(--kitz-text)',
               border: 'none',
-              borderRight:
-                i === SHELL_MODES.length - 1 ? '1px solid var(--kitz-border)' : 'none',
+              borderRight: '1px solid var(--kitz-border)',
               cursor: 'pointer',
               fontFamily: 'var(--kitz-font-mono)',
-              fontSize: '0.7rem',
+              fontSize: '0.65rem',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              minWidth: '5.5rem',
+              minWidth: '4.5rem',
             }}
           >
             {m.label}

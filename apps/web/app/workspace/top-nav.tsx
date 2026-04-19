@@ -10,11 +10,10 @@ type Props = {
 
 /**
  * Full-width top chrome rendered above the 3-column shell.
- * Layout: [mode tabs] [brand] [search] [battery]
+ * Layout: [brand] [search] [mode tabs] [battery]
  *
- * Mode switching used to live in the left rail; with the new
- * chat-as-rail layout the rail is entirely the chat panel, so
- * mode tabs moved up here.
+ * Mode tabs sit on the far right next to the battery so the brand keeps
+ * the strongest left anchor and the search owns the middle.
  */
 export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
   return (
@@ -28,8 +27,6 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         background: 'var(--kitz-bg)',
       }}
     >
-      <TopNavModes />
-
       <div
         style={{
           display: 'flex',
@@ -62,9 +59,12 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'stretch',
+          borderLeft: '1px solid var(--kitz-border)',
+          flexShrink: 0,
         }}
       >
+        <TopNavModes />
         <TopNavBattery credits={credits} lifetimeTopup={lifetimeTopup} />
       </div>
     </header>
