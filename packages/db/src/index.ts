@@ -20,5 +20,11 @@ export type { SkillKind } from './skills';
 export type { WhatsAppSession, WhatsAppSessionPatch, WhatsAppStore } from './whatsapp';
 export { WHATSAPP_STATUSES } from './whatsapp';
 export type { WhatsAppStatus } from './whatsapp';
+export type {
+  CalendarEvent,
+  CalendarEventInput,
+  CalendarEventPatch,
+  CalendarStore,
+} from './calendar';
 export { createStubDb } from './stub';
 export { createDbClient } from './factory';

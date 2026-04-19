@@ -5,6 +5,7 @@ import type { DealsStore } from './deals';
 import type { AgentsStore } from './agents';
 import type { SkillsStore } from './skills';
 import type { WhatsAppStore } from './whatsapp';
+import type { CalendarStore } from './calendar';
 
 export type TenantStats = {
   contacts: number;
@@ -80,6 +81,9 @@ export interface DbClient {
 
   // Comms
   readonly whatsapp: WhatsAppStore;
+
+  // Productivity
+  readonly calendar: CalendarStore;
 
   // Session
   createSession(userId: string, email: string): Promise<AuthSession & { token: string }>;
