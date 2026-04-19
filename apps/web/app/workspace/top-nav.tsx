@@ -1,5 +1,6 @@
 import TopNavSearch from './top-nav-search';
 import TopNavBattery from './top-nav-battery';
+import TopNavModes from './top-nav-modes';
 
 type Props = {
   tenantName: string;
@@ -9,8 +10,11 @@ type Props = {
 
 /**
  * Full-width top chrome rendered above the 3-column shell.
- * Brand left · global search center · battery right.
- * Workspace/Brain/Canvas mode tabs live in the left rail (ShellNav), not here.
+ * Layout: [mode tabs] [brand] [search] [battery]
+ *
+ * Mode switching used to live in the left rail; with the new
+ * chat-as-rail layout the rail is entirely the chat panel, so
+ * mode tabs moved up here.
  */
 export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
   return (
@@ -24,13 +28,14 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         background: 'var(--kitz-bg)',
       }}
     >
+      <TopNavModes />
+
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           padding: '0 1rem',
           borderRight: '1px solid var(--kitz-border)',
-          minWidth: '18rem',
           flexShrink: 0,
         }}
       >

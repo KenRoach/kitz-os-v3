@@ -3,8 +3,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import { SESSION_COOKIE_NAME, resolveSession } from '@/lib/auth/session';
-import ShellNav from './shell-nav';
-import ShellChat from './shell-chat';
+import ChatRail from './chat-rail';
+import InspectorRail from './inspector-rail';
 import TopNav from './top-nav';
 import { FullscreenProvider } from './fullscreen-context';
 
@@ -39,13 +39,13 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
           lifetimeTopup={stats.credits.lifetimeTopup}
         />
         <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-          <ShellNav
+          <ChatRail
             tenantSlug={primary.tenant.slug}
             role={primary.membership.role}
             email={session.email}
           />
           <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>{children}</main>
-          <ShellChat />
+          <InspectorRail />
         </div>
       </div>
     </FullscreenProvider>

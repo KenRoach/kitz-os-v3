@@ -101,7 +101,12 @@ function ReferralFooter() {
   );
 }
 
-export default function ShellChat() {
+type ShellChatProps = {
+  /** Which side of the shell the chat lives on. Affects edge-tab + border. */
+  side?: 'left' | 'right';
+};
+
+export default function ShellChat({ side = 'right' }: ShellChatProps = {}) {
   const [messages, setMessages] = useState<Message[]>([SEED_KITZ]);
   const [input, setInput] = useState('');
   const [userOpen, setUserOpen] = useState(true);
@@ -214,7 +219,7 @@ export default function ShellChat() {
         className="kz-button kz-button-ghost"
         style={{
           position: 'fixed',
-          right: 0,
+          ...(side === 'left' ? { left: 0 } : { right: 0 }),
           top: '50%',
           transform: 'translateY(-50%)',
           width: '2rem',
@@ -222,7 +227,7 @@ export default function ShellChat() {
           writingMode: 'vertical-rl',
           fontSize: '0.7rem',
           padding: 0,
-          borderRight: 'none',
+          ...(side === 'left' ? { borderLeft: 'none' } : { borderRight: 'none' }),
           zIndex: 20,
         }}
         aria-label={fullscreen ? 'Salir de pantalla completa y abrir chat' : 'Abrir chat de KitZ'}
@@ -245,7 +250,9 @@ export default function ShellChat() {
         minHeight: 0,
         display: 'flex',
         flexDirection: 'column',
-        borderLeft: '1px solid var(--kitz-border)',
+        ...(side === 'left'
+          ? { borderRight: '1px solid var(--kitz-border)' }
+          : { borderLeft: '1px solid var(--kitz-border)' }),
         background: 'var(--kitz-bg)',
         flexShrink: 0,
       }}
