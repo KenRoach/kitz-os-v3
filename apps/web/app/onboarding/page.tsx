@@ -15,7 +15,10 @@ export default async function OnboardingPage() {
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const db = getDb();
   const session = await resolveSession(db, token);
-  if (!session) redirect('/login');
+  if (!session) {
+    if (token) cookieStore.delete(SESSION_COOKIE_NAME);
+    redirect('/login');
+  }
 
   const existing = await db.findPrimaryTenant(session.user_id);
   if (existing) redirect('/workspace');

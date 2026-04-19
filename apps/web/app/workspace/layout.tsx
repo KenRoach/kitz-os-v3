@@ -37,7 +37,14 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const db = getDb();
   const session = await resolveSession(db, token);
-  if (!session) redirect('/login');
+  if (!session) {
+    // Stale cookie path: middleware saw a cookie present and let us
+    // through, but the in-memory session was wiped (dev restart) or
+    // expired. Clear it so the user only has to log in once instead of
+    // bouncing back here on the next attempt with the same dead cookie.
+    if (token) cookieStore.delete(SESSION_COOKIE_NAME);
+    redirect('/login');
+  }
 
   const tenants = await db.listTenantsForUser(session.user_id);
   if (tenants.length === 0) redirect('/onboarding');
