@@ -166,7 +166,7 @@ export default function MobileShell({ tenantName, credits, email: _email }: Prop
                 letterSpacing: '0.02em',
               }}
             >
-              KitZ AI Chat
+              KitZ Mobile
             </span>
           </div>
           <div
