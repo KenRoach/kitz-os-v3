@@ -47,6 +47,19 @@ class EventBus {
   }
 
   emit(tenantId: string, event: KitzEvent): void {
+    // Fire Web Push in parallel with the SSE fan-out. Push dispatch is
+    // async + network-bound; we don't await it because:
+    //   1. SSE consumers shouldn't block on push service latency
+    //   2. Failed push (expired sub, network blip) must not cause the
+    //      SSE emit to throw
+    // dispatchPush handles its own errors + no-ops when VAPID isn't
+    // configured, so a fire-and-forget is safe here.
+    void import('@/lib/push/send').then(({ dispatchPush }) =>
+      dispatchPush(tenantId, event).catch(() => {
+        // swallowed inside dispatchPush; extra safety here
+      }),
+    );
+
     const set = this.subscribers.get(tenantId);
     if (!set) return;
     for (const fn of set) {

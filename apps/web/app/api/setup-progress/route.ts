@@ -2,6 +2,15 @@ import { NextResponse } from 'next/server';
 import type { ApiEnvelope } from '@kitz/types';
 import { getDb } from '@/lib/db';
 import { requireTenant } from '@/lib/auth/require-tenant';
+import { eventBus } from '@/lib/stream/bus';
+
+/**
+ * Per-process memo of the last emitted doneCount per tenant. Lets us
+ * broadcast a `setup.progress` event only when the number changes,
+ * so the SSE stream isn't spammed every time SetupGuide polls. Loses
+ * state on server restart (fine — the next poll will re-emit).
+ */
+const lastEmittedDone = new Map<string, number>();
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -43,12 +52,29 @@ export async function GET(): Promise<Response> {
     { id: 'topup_battery', done: battery.lifetime_topup > FREE_GRANT },
   ];
 
+  const doneCount = milestones.filter((m) => m.done).length;
+  const total = milestones.length;
+
+  // Change-detection emit: only fire SSE when doneCount actually moved
+  // since the last GET for this tenant. Keeps the stream quiet while
+  // setup-guide polls on focus.
+  const previous = lastEmittedDone.get(auth.ctx.tenantId);
+  if (previous !== doneCount) {
+    lastEmittedDone.set(auth.ctx.tenantId, doneCount);
+    eventBus.emit(auth.ctx.tenantId, {
+      kind: 'setup.progress',
+      doneCount,
+      total,
+      at: new Date().toISOString(),
+    });
+  }
+
   const body: ApiEnvelope<SetupProgressPayload> = {
     success: true,
     data: {
       milestones,
-      doneCount: milestones.filter((m) => m.done).length,
-      total: milestones.length,
+      doneCount,
+      total,
     },
     error: null,
   };

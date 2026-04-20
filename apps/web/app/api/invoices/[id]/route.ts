@@ -5,6 +5,7 @@ import type { Invoice } from '@kitz/db';
 import { INVOICE_STATUSES } from '@kitz/db/invoice-constants';
 import { getDb } from '@/lib/db';
 import { requireTenant } from '@/lib/auth/require-tenant';
+import { eventBus } from '@/lib/stream/bus';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -71,6 +72,10 @@ export async function PATCH(request: Request, { params }: Params): Promise<Respo
     if (v !== undefined) patch[k] = v;
   }
   try {
+    // Capture the pre-update status so we only fire invoice.paid once,
+    // on the draft/sent → paid transition. Re-patching an already-paid
+    // invoice shouldn't re-toast every client.
+    const before = await db.invoices.get(auth.ctx.tenantId, id);
     const updated = await db.invoices.update(
       auth.ctx.tenantId,
       id,
@@ -80,6 +85,18 @@ export async function PATCH(request: Request, { params }: Params): Promise<Respo
       const body: ApiEnvelope<null> = { success: false, data: null, error: 'not_found' };
       return NextResponse.json(body, { status: 404 });
     }
+
+    if (before && before.status !== 'paid' && updated.status === 'paid') {
+      eventBus.emit(auth.ctx.tenantId, {
+        kind: 'invoice.paid',
+        invoiceId: updated.id,
+        number: updated.number,
+        total: updated.total,
+        currency: updated.currency,
+        at: new Date().toISOString(),
+      });
+    }
+
     const body: ApiEnvelope<Invoice> = { success: true, data: updated, error: null };
     return NextResponse.json(body, { status: 200 });
   } catch (err) {

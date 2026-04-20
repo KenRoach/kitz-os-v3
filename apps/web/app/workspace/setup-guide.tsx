@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Check, X, ChevronRight, ListChecks } from 'lucide-react';
+import { PushToggle } from '@/lib/push/push-toggle';
 
 type MilestoneId =
   | 'add_contact'
@@ -327,6 +328,30 @@ export default function SetupGuide({ tenantSlug }: { tenantSlug: string }) {
           })}
         </ul>
       )}
+      {/* Cross-device push alerts — hidden unless the browser supports
+          it and the user hasn't already denied. Safe to render on
+          every session; PushToggle self-hides otherwise. */}
+      <div
+        style={{
+          borderTop: '1px solid var(--kitz-line)',
+          padding: '0.75rem 0.9rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '0.75rem',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '0.7rem',
+            color: 'var(--kitz-ink-2)',
+            lineHeight: 1.35,
+          }}
+        >
+          Recibe alertas de WhatsApp y facturas aunque KitZ esté cerrado.
+        </span>
+        <PushToggle device="desktop" size="sm" />
+      </div>
     </aside>
   );
 }
