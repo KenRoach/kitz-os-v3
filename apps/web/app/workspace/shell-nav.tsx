@@ -398,10 +398,12 @@ function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
   return {
     pinned: [
       { href: '/workspace', label: 'Inicio', icon: Home },
+      { href: '/workspace/tareas', label: 'Tareas', icon: Home },
       { href: '/workspace/contactos', label: 'Clientes', icon: Users },
       { href: '/workspace/conversaciones', label: 'WhatsApp', icon: MessageSquare },
       { href: '/workspace/calendario', label: 'Calendario', icon: Calendar },
       { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
+      { href: '/workspace/productos', label: 'Productos', icon: Package },
       { href: '/workspace/ventas', label: 'Pipeline', icon: BarChart3 },
       { href: '/workspace/canvas/documentos', label: 'Documentos', icon: Package },
       { href: '/workspace/canvas/recientes', label: 'Artefactos recientes', icon: Clock },
