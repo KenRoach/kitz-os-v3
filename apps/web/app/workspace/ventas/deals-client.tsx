@@ -83,7 +83,7 @@ export default function DealsClient() {
       <header>
         <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Ventas</h1>
         <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#666' }}>
-          Pipeline · {deals.length} tratos · {pipelineUsd.toLocaleString()} pendientes
+          Prospectos · {deals.length} tratos · {pipelineUsd.toLocaleString()} pendientes
         </p>
       </header>
 

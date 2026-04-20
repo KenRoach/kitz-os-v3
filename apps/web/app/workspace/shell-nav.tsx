@@ -402,7 +402,7 @@ function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
       { href: '/workspace/calendario', label: 'Calendario', icon: Calendar },
       { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
       { href: '/workspace/productos', label: 'Productos', icon: Package },
-      { href: '/workspace/ventas', label: 'Pipeline', icon: BarChart3 },
+      { href: '/workspace/ventas', label: 'Prospectos', icon: BarChart3 },
       { href: '/workspace/reportes', label: 'Reportes', icon: BarChart3 },
     ],
     shortcuts: [],
