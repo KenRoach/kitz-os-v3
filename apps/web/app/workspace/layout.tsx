@@ -14,6 +14,7 @@ import ShellChat from './shell-chat';
 import TopNav from './top-nav';
 import SandboxBanner from './sandbox-banner';
 import SetupGuide from './setup-guide';
+import MobileMount from './mobile-mount';
 import { FullscreenProvider } from './fullscreen-context';
 
 export const dynamic = 'force-dynamic';
@@ -60,7 +61,16 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
 
   return (
     <FullscreenProvider>
+      {/* Viewport swap: desktop chrome <= 768px is hidden, MobileMount
+          takes over with its own fullscreen fixed-position layer. */}
+      <style>{`
+        @media (max-width: 768px) {
+          .kitz-desktop-shell { display: none !important; }
+        }
+      `}</style>
+
       <div
+        className="kitz-desktop-shell"
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -88,8 +98,17 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
           <ShellChat />
         </div>
       </div>
-      {/* Floating Stripe-style setup checklist (auto-hides when complete) */}
-      <SetupGuide tenantSlug={resolved.tenant.slug} />
+      {/* Floating Stripe-style setup checklist — desktop only */}
+      <div className="kitz-desktop-shell">
+        <SetupGuide tenantSlug={resolved.tenant.slug} />
+      </div>
+
+      {/* Mobile experience — only renders on viewports <= 768px */}
+      <MobileMount
+        tenantName={resolved.tenant.name}
+        credits={stats.credits.balance}
+        email={session.email}
+      />
     </FullscreenProvider>
   );
 }
