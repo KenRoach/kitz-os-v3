@@ -396,16 +396,12 @@ function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
     pinned: [
       { href: '/workspace', label: 'Inicio', icon: Home },
       { href: '/workspace/contactos', label: 'Clientes', icon: Users },
+      { href: '/workspace/calendario', label: 'Calendario', icon: Calendar },
       { href: '/workspace/canvas/documentos', label: 'Documentos', icon: Package },
+      { href: '/workspace/canvas/recientes', label: 'Artefactos recientes', icon: Clock },
     ],
     shortcuts: [],
     addOnGroups: [
-      {
-        key: 'calendar',
-        label: 'Calendario',
-        icon: Calendar,
-        items: [{ href: '/workspace/calendario', label: 'Agenda', icon: Calendar }],
-      },
       {
         key: 'quoter',
         label: 'Cotizador',
