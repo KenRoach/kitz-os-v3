@@ -1,10 +1,14 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type Stage = 'email' | 'code' | 'done';
 
 export default function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedNext = searchParams.get('next');
   const [stage, setStage] = useState<Stage>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -83,10 +87,21 @@ export default function LoginForm() {
         }
         return;
       }
-      const next = body.data?.next ?? '/workspace';
+      // Honour ?next=... if it points at an in-app path, otherwise fall
+      // back to the server's recommendation (/onboarding for fresh users,
+      // /workspace once a tenant exists).
+      const safeNext =
+        requestedNext && requestedNext.startsWith('/') && !requestedNext.startsWith('//')
+          ? requestedNext
+          : null;
+      const next = safeNext ?? body.data?.next ?? '/workspace';
       setNextTarget(next);
       setStage('done');
-      window.location.href = next;
+      // Use a hard navigation here so the browser commits the just-set
+      // session cookie before the destination's middleware reads it.
+      // router.push() races with the Set-Cookie commit and can bounce
+      // the user back to /login on the very first attempt.
+      window.location.assign(next);
     } catch {
       setError('Fallo de red. Intenta de nuevo.');
     } finally {

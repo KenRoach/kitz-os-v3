@@ -41,8 +41,8 @@ export type NavSection = {
 
 export const SHELL_MODES: { id: ShellMode; label: string }[] = [
   { id: 'workspace', label: 'Workspace' },
-  { id: 'brain', label: 'Brain' },
   { id: 'canvas', label: 'Canvas' },
+  { id: 'brain', label: 'Brain' },
 ];
 
 export const NAV_BY_MODE: Record<ShellMode, NavSection[]> = {

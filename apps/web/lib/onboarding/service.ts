@@ -14,7 +14,14 @@ export type CreateWorkspaceInput = {
 };
 
 export type CreateWorkspaceResult =
-  | { ok: true; tenant: Tenant; membership: WorkspaceMember; agentsSeeded: number }
+  | {
+      ok: true;
+      tenant: Tenant;
+      membership: WorkspaceMember;
+      sandboxTenant: Tenant;
+      sandboxMembership: WorkspaceMember;
+      agentsSeeded: number;
+    }
   | { ok: false; reason: 'invalid_name' | 'invalid_slug' | 'slug_exhausted' };
 
 const MAX_SLUG_ATTEMPTS = 20;
@@ -99,17 +106,33 @@ export async function createWorkspaceForUser(
 
   await db.updateUserProfile(input.userId, { full_name: fullName });
 
+  // Live tenant.
   const { tenant, membership } = await db.createTenantWithOwner({
     slug: uniqueSlug,
     name,
     ownerUserId: input.userId,
   });
 
-  const packSlug: WorkPackSlug = input.workPack ?? 'general';
-  const agentsSeeded = await seedPackAgents(db, tenant.id, packSlug);
+  // Sandbox tenant — every workspace gets a paired sandbox so users can
+  // explore the product on demo data without polluting their real account.
+  // The sandbox slug is suffixed `-sandbox`; if that's taken (vanishingly
+  // rare since it shares a base with the live slug) we walk numerically.
+  const sandboxBase = `${uniqueSlug}-sandbox`;
+  const sandboxSlug = (await resolveUniqueSlug(db, sandboxBase)) ?? sandboxBase;
+  const { tenant: sandboxTenant, membership: sandboxMembership } = await db.createTenantWithOwner({
+    slug: sandboxSlug,
+    name: `${name} (sandbox)`,
+    ownerUserId: input.userId,
+  });
 
-  // Record the pack choice as an activity event so the dashboard log shows
-  // why the agents appeared.
+  const packSlug: WorkPackSlug = input.workPack ?? 'general';
+  // Seed the live tenant with the chosen pack's agents.
+  const agentsSeeded = await seedPackAgents(db, tenant.id, packSlug);
+  // Seed the sandbox with the same agents AND demo CRM data so the user
+  // sees a "lived-in" workspace immediately on first login.
+  await seedPackAgents(db, sandboxTenant.id, packSlug);
+  await seedSandboxDemoData(db, sandboxTenant.id, input.userId);
+
   if (agentsSeeded > 0) {
     await db.recordActivity({
       tenantId: tenant.id,
@@ -119,5 +142,50 @@ export async function createWorkspaceForUser(
     });
   }
 
-  return { ok: true, tenant, membership, agentsSeeded };
+  return {
+    ok: true,
+    tenant,
+    membership,
+    sandboxTenant,
+    sandboxMembership,
+    agentsSeeded,
+  };
+}
+
+/**
+ * Drop a small set of fake contacts / deals / events into a freshly-created
+ * sandbox tenant so the new user has something to click around on.
+ */
+async function seedSandboxDemoData(
+  db: DbClient,
+  tenantId: string,
+  userId: string,
+): Promise<void> {
+  const demoContacts = [
+    { name: 'Jaime Madrid', email: 'jaime@prowall.pa', company: 'ProWall Panamá', tags: ['prospect'] },
+    { name: 'Lital Ben-Zeev', email: 'lital@wgl.legal', company: 'WGL Legal', tags: ['partner'] },
+    { name: 'Edilberto García', email: 'edi@codeaudit.io', company: 'Code Audit', tags: ['vendor'] },
+  ];
+  for (const c of demoContacts) {
+    try {
+      await db.contacts.create(tenantId, {
+        name: c.name,
+        email: c.email,
+        company: c.company,
+        tags: c.tags,
+      });
+    } catch {
+      /* tolerate seed failures */
+    }
+  }
+  try {
+    await db.recordActivity({
+      tenantId,
+      actor: userId,
+      action: 'seeded_sandbox',
+      entity: 'demo',
+    });
+  } catch {
+    /* noop */
+  }
 }

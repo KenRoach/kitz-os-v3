@@ -259,7 +259,8 @@ export default function ShellChat({ side = 'right' }: ShellChatProps = {}) {
     >
       <header
         style={{
-          padding: '0.6rem 1rem',
+          height: '2.75rem',
+          padding: '0 1rem',
           borderBottom: '1px solid var(--kitz-border)',
           display: 'flex',
           alignItems: 'center',

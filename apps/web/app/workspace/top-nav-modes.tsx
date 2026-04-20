@@ -27,6 +27,7 @@ export default function TopNavModes() {
         display: 'flex',
         alignItems: 'stretch',
         height: '100%',
+        width: '100%',
       }}
     >
       {SHELL_MODES.map((m, i) => {
@@ -39,20 +40,27 @@ export default function TopNavModes() {
             aria-selected={active}
             onClick={() => router.push(MODE_ROOT[m.id])}
             style={{
-              padding: '0 0.85rem',
-              background: active ? 'var(--kitz-text-strong)' : 'transparent',
-              color: active ? 'var(--kitz-bg)' : 'var(--kitz-text)',
+              flex: 1,
+              padding: '0 1rem',
+              background: active ? 'var(--kitz-ink)' : 'transparent',
+              color: active ? 'var(--kitz-bg)' : 'var(--kitz-ink-2)',
               border: 'none',
-              // Only the last pill needs a right separator; the parent
-              // group already supplies a left border, so no double-seams.
-              borderRight: isLast ? '1px solid var(--kitz-border)' : 'none',
+              // Hairline divider between pills only — keeps the group as
+              // a single tight unit instead of three boxed buttons.
+              borderRight: isLast ? 'none' : '1px solid var(--kitz-line)',
               cursor: 'pointer',
               fontFamily: 'var(--kitz-font-mono)',
-              fontSize: '0.65rem',
+              fontSize: '0.7rem',
+              fontWeight: active ? 600 : 500,
               textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              minWidth: '4.75rem',
-              transition: 'background-color 120ms ease',
+              letterSpacing: '0.12em',
+              transition: 'background-color 120ms ease, color 120ms ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!active) e.currentTarget.style.background = 'var(--kitz-sunk)';
+            }}
+            onMouseLeave={(e) => {
+              if (!active) e.currentTarget.style.background = 'transparent';
             }}
           >
             {m.label}

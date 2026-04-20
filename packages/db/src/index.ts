@@ -60,6 +60,16 @@ export type {
   DocumentsStore,
 } from './documents';
 export type { DocumentKind, DocumentStatus } from './document-kinds';
+export type {
+  FeedbackRecord,
+  FeedbackInput,
+  FeedbackPatch,
+  FeedbackType,
+  FeedbackPriority,
+  FeedbackStatus,
+  FeedbackStore,
+} from './feedback';
+export { FEEDBACK_TYPES, FEEDBACK_PRIORITIES, FEEDBACK_STATUSES } from './feedback';
 export {
   DOCUMENT_KINDS,
   DOCUMENT_STATUSES,

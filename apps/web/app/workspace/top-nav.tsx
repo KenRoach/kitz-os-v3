@@ -10,12 +10,19 @@ type Props = {
 
 /**
  * Full-width top chrome rendered above the 3-column shell.
- * Layout: [brand] [search] [mode tabs] [battery]
  *
- * Mode tabs sit on the far right next to the battery so the brand keeps
- * the strongest left anchor and the search owns the middle.
+ * Layout: [brand · 17rem] [search · flex] [modes + battery · ~26rem]
+ *
+ * Widths are intentionally locked to the underlying shell columns so the
+ * vertical seams in the TopNav line up exactly with the left rail's right
+ * edge and the chat panel's left edge below.
+ *   - brand block          == ShellNav width (17rem)
+ *   - right group          == ShellChat width (clamp 20–26rem)
  */
 export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
+  const railWidth = '17rem';
+  const chatWidth = 'clamp(20rem, 24vw, 26rem)';
+
   return (
     <header
       style={{
@@ -23,48 +30,86 @@ export default function TopNav({ tenantName, credits, lifetimeTopup }: Props) {
         alignItems: 'stretch',
         height: '2.75rem',
         flexShrink: 0,
-        borderBottom: '1px solid var(--kitz-border)',
+        borderBottom: '1px solid var(--kitz-line-strong)',
         background: 'var(--kitz-bg)',
       }}
     >
+      {/* Brand block — K monogram + KitZ wordmark. Width matches ShellNav
+          so the right edge aligns with the rail's right edge below. */}
       <div
         style={{
+          width: railWidth,
           display: 'flex',
           alignItems: 'center',
+          gap: '0.6rem',
           padding: '0 1rem',
-          borderRight: '1px solid var(--kitz-border)',
+          borderRight: '1px solid var(--kitz-line-strong)',
           flexShrink: 0,
         }}
+        title={tenantName}
       >
         <span
+          aria-hidden
           style={{
-            color: 'var(--kitz-text-strong)',
+            width: '1.5rem',
+            height: '1.5rem',
+            background: 'var(--kitz-ink)',
+            color: 'var(--kitz-bg)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            flexShrink: 0,
+            lineHeight: 1,
+          }}
+        >
+          K
+        </span>
+        <span
+          style={{
+            color: 'var(--kitz-ink)',
             fontWeight: 600,
             fontSize: '0.875rem',
+            letterSpacing: '0.01em',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            letterSpacing: '0.01em',
           }}
-          title={`KitZ AI Workspace · ${tenantName}`}
         >
-          KitZ AI Workspace
+          KitZ
         </span>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 1rem' }}>
+      {/* Search — flexes between the two locked columns */}
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 1rem',
+        }}
+      >
         <TopNavSearch />
       </div>
 
+      {/* Modes + battery — width matches ShellChat so the seam lines up
+          with the chat panel's left edge. Modes flex to fill all space to
+          the left of the (fixed-width) battery so the three pills are
+          equal-width and the row reads as one tight unit. */}
       <div
         style={{
+          width: chatWidth,
           display: 'flex',
           alignItems: 'stretch',
-          borderLeft: '1px solid var(--kitz-border)',
+          borderLeft: '1px solid var(--kitz-line-strong)',
           flexShrink: 0,
         }}
       >
-        <TopNavModes />
+        <div style={{ flex: 1, display: 'flex', minWidth: 0 }}>
+          <TopNavModes />
+        </div>
         <TopNavBattery credits={credits} lifetimeTopup={lifetimeTopup} />
       </div>
     </header>

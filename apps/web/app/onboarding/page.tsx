@@ -15,7 +15,18 @@ export default async function OnboardingPage() {
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const db = getDb();
   const session = await resolveSession(db, token);
-  if (!session) redirect('/login');
+  if (!session) {
+    // See note in workspace/layout.tsx — cookie writes from a plain
+    // Server Component are forbidden in Next 15. Best-effort delete.
+    if (token) {
+      try {
+        cookieStore.delete(SESSION_COOKIE_NAME);
+      } catch {
+        /* not fatal */
+      }
+    }
+    redirect('/login');
+  }
 
   const existing = await db.findPrimaryTenant(session.user_id);
   if (existing) redirect('/workspace');

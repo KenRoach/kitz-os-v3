@@ -17,6 +17,7 @@ export default function TopNavBattery({ credits, lifetimeTopup }: Props) {
         alignItems: 'center',
         gap: '0.5rem',
         padding: '0 1rem',
+        borderLeft: '1px solid var(--kitz-line-strong)',
       }}
     >
       <div
