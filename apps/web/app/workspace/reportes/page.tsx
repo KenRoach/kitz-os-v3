@@ -12,6 +12,7 @@ import { buildExtraBundle, type ExtraBundle } from '@/lib/reports/extra-aggregat
 import { Sparkline, MiniBars, Funnel } from '@/lib/reports/charts';
 import RangePicker from './range-picker';
 import InsightCard from './insight-card';
+import AskBox from './ask-box';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Reportes · KitZ' };
@@ -117,6 +118,8 @@ export default async function ReportesPage({
         </header>
 
         <InsightCard bundle={bundle} />
+
+        <AskBox bundle={bundle} extra={extra} />
 
         <div className="kitz-reports-grid">
           <PipelineCard bundle={bundle} />
