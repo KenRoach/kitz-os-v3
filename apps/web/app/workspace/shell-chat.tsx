@@ -49,6 +49,45 @@ function formatTime(ts: number): string {
   return `${hh}:${mm}`;
 }
 
+/**
+ * Map a server-side chat-history row to ShellChat's local Message
+ * shape. System turns are hidden from the UI — they're reserved for
+ * future server-driven tool results that shouldn't render as speech
+ * bubbles.
+ */
+function apiToMessage(m: {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  text: string;
+  createdAt: string;
+}): Message | null {
+  if (m.role === 'system') return null;
+  return {
+    id: m.id,
+    role: m.role === 'user' ? 'user' : 'kitz',
+    text: m.text,
+    ts: new Date(m.createdAt).getTime(),
+  };
+}
+
+/**
+ * Append a turn to /api/chat-history. Fire-and-forget — local state
+ * already shows the turn; failing to replicate just means the other
+ * device's copy won't include this message until the next successful
+ * write or re-hydrate.
+ */
+async function persistTurn(role: 'user' | 'assistant', text: string): Promise<void> {
+  try {
+    await fetch('/api/chat-history', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ role, text, fromDevice: 'desktop' }),
+    });
+  } catch {
+    // Offline / server unreachable — see note above.
+  }
+}
+
 function ReferralFooter() {
   const [copied, setCopied] = useState(false);
   const link =
@@ -143,6 +182,61 @@ export default function ShellChat({ side = 'right' }: ShellChatProps = {}) {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, open]);
 
+  // Hydrate thread from the shared /api/chat-history store on mount
+  // and whenever the other device appends a turn (SSE chat.message
+  // with fromDevice !== 'desktop'). Re-fetching the whole thread —
+  // instead of mutating local state from the event payload — keeps
+  // ordering + the 500-message cap aligned with server truth, and
+  // the round trip is negligible for conversation-sized lists.
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrate() {
+      try {
+        const r = await fetch('/api/chat-history', { cache: 'no-store' });
+        const j = (await r.json()) as {
+          data: {
+            items: {
+              id: string;
+              role: 'user' | 'assistant' | 'system';
+              text: string;
+              createdAt: string;
+            }[];
+          } | null;
+        };
+        if (cancelled) return;
+        const items = j.data?.items ?? [];
+        if (items.length === 0) return;
+        const mapped = items.map(apiToMessage).filter((m): m is Message => m !== null);
+        if (mapped.length > 0) setMessages(mapped);
+      } catch {
+        // Keep the seed message if hydration fails.
+      }
+    }
+    void hydrate();
+
+    if (typeof window === 'undefined' || typeof EventSource === 'undefined') {
+      return () => {
+        cancelled = true;
+      };
+    }
+    const es = new EventSource('/api/stream');
+    es.onmessage = (msg) => {
+      if (!msg.data || typeof msg.data !== 'string') return;
+      try {
+        const parsed = JSON.parse(msg.data) as { kind: string; fromDevice?: string };
+        if (parsed.kind === 'chat.message' && parsed.fromDevice !== 'desktop') {
+          void hydrate();
+        }
+      } catch {
+        // Heartbeats / malformed frames: ignore.
+      }
+    };
+    return () => {
+      cancelled = true;
+      es.close();
+    };
+  }, []);
+
   async function send(text: string) {
     const trimmed = text.trim();
     if ((!trimmed && pendingAttachments.length === 0) || sending) return;
@@ -158,6 +252,12 @@ export default function ShellChat({ side = 'right' }: ShellChatProps = {}) {
     setInput('');
     setPendingAttachments([]);
     setSending(true);
+
+    // Replicate the user turn up to /api/chat-history in parallel
+    // with /api/chat so the mobile shell picks it up via SSE without
+    // waiting for the assistant reply.
+    if (trimmed) void persistTurn('user', trimmed);
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -175,16 +275,19 @@ export default function ShellChat({ side = 'right' }: ShellChatProps = {}) {
         ...prev,
         { id: `k-${Date.now()}`, role: 'kitz', text: reply, ts: Date.now() },
       ]);
+      void persistTurn('assistant', reply);
     } catch {
+      const networkError = 'Error de red. Intenta de nuevo.';
       setMessages((prev) => [
         ...prev,
         {
           id: `k-${Date.now()}`,
           role: 'kitz',
-          text: 'Error de red. Intenta de nuevo.',
+          text: networkError,
           ts: Date.now(),
         },
       ]);
+      void persistTurn('assistant', networkError);
     } finally {
       setSending(false);
       requestAnimationFrame(() => inputRef.current?.focus());
