@@ -109,33 +109,55 @@ export default function SetupGuide({ tenantSlug }: { tenantSlug: string }) {
   // Dismissed → show only the tiny re-open pill so it never gets lost.
   if (dismissed) {
     return (
-      <button
-        type="button"
-        onClick={undismiss}
-        title="Mostrar guía de configuración"
-        style={{
-          position: 'fixed',
-          right: '1rem',
-          bottom: '1rem',
-          zIndex: 30,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.4rem',
-          padding: '0.4rem 0.7rem',
-          background: 'var(--kitz-ink)',
-          color: 'var(--kitz-bg)',
-          border: '1px solid var(--kitz-line-strong)',
-          fontFamily: 'var(--kitz-font-mono)',
-          fontSize: '0.7rem',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          fontWeight: 600,
-        }}
-      >
-        <ListChecks size={13} strokeWidth={1.7} />
-        Setup {snap.doneCount}/{snap.total}
-      </button>
+      <>
+        <style>{`
+          @keyframes kitz-setup-breathe {
+            0%, 100% {
+              box-shadow:
+                0 0 0 0 rgba(0, 0, 0, 0.25),
+                0 2px 6px rgba(0, 0, 0, 0.12);
+            }
+            50% {
+              box-shadow:
+                0 0 0 10px rgba(0, 0, 0, 0),
+                0 6px 18px rgba(0, 0, 0, 0.22);
+            }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .kitz-setup-pill { animation: none !important; }
+          }
+        `}</style>
+        <button
+          type="button"
+          onClick={undismiss}
+          title="Mostrar guía de configuración"
+          className="kitz-setup-pill"
+          style={{
+            position: 'fixed',
+            left: '50%',
+            bottom: '1rem',
+            transform: 'translateX(-50%)',
+            zIndex: 30,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            padding: '0.4rem 0.7rem',
+            background: 'var(--kitz-ink)',
+            color: 'var(--kitz-bg)',
+            border: '1px solid var(--kitz-line-strong)',
+            fontFamily: 'var(--kitz-font-mono)',
+            fontSize: '0.7rem',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            fontWeight: 600,
+            animation: 'kitz-setup-breathe 2.6s ease-in-out infinite',
+          }}
+        >
+          <ListChecks size={13} strokeWidth={1.7} />
+          Setup {snap.doneCount}/{snap.total}
+        </button>
+      </>
     );
   }
 

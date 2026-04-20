@@ -16,6 +16,7 @@ import SandboxBanner from './sandbox-banner';
 import SetupGuide from './setup-guide';
 import MobileMount from './mobile-mount';
 import { FullscreenProvider } from './fullscreen-context';
+import { AlertLayer } from '@/lib/stream/alert-layer';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,14 +105,37 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
             hasSandbox={hasSandbox}
             hasLive={hasLive}
           />
-          <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>{children}</main>
+          {/*
+           * Document-feel content column. Caps the workspace canvas at
+           * a 72rem reading measure on large monitors so list pages
+           * don't stretch into spreadsheet territory, but stays fully
+           * fluid below that so mid-range laptops still use the full
+           * viewport. The outer <main> keeps `flex: 1` so the chat
+           * rail still docks against the right edge; the inner div
+           * does the centering + max-width work.
+           */}
+          <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
+            <div
+              style={{
+                maxWidth: '72rem',
+                margin: '0 auto',
+                minHeight: '100%',
+              }}
+            >
+              {children}
+            </div>
+          </main>
           <ShellChat />
         </div>
       </div>
-      {/* Floating Stripe-style setup checklist — desktop only */}
-      <div className="kitz-desktop-shell">
-        <SetupGuide tenantSlug={resolved.tenant.slug} />
-      </div>
+      {/* Floating Stripe-style setup checklist — position:fixed so it
+          renders on both desktop and mobile viewports. */}
+      <SetupGuide tenantSlug={resolved.tenant.slug} />
+
+      {/* Cross-device alert stack — subscribes to /api/stream so any
+          server-side emit (WhatsApp inbound, invoice paid, etc) pops
+          a toast on whichever shell is currently open. */}
+      <AlertLayer />
 
       {/* Mobile experience — only renders on viewports <= 768px */}
       <MobileMount
