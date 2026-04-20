@@ -524,7 +524,27 @@ function InvoiceRow({
           </select>
         </td>
         <td style={{ padding: '0.5rem', color: '#666' }}>{formatDate(invoice.created_at)}</td>
-        <td style={{ padding: '0.5rem', textAlign: 'right' }}>
+        <td style={{ padding: '0.5rem', textAlign: 'right', whiteSpace: 'nowrap' }}>
+          <button
+            type="button"
+            onClick={() =>
+              // Opens the print-ready route in a second window —
+              // AutoPrint fires the system print dialog on load so
+              // users can "Save as PDF" with one click.
+              window.open(`/print/cotizaciones/${invoice.id}`, '_blank', 'noopener,noreferrer')
+            }
+            style={{
+              border: '1px solid #000',
+              background: '#000',
+              color: '#fff',
+              padding: '0.15rem 0.5rem',
+              fontSize: '0.7rem',
+              cursor: 'pointer',
+              marginRight: '0.35rem',
+            }}
+          >
+            PDF
+          </button>
           <button
             type="button"
             onClick={() => void onDelete(invoice.id)}
