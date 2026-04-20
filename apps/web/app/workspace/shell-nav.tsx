@@ -61,9 +61,10 @@ type NavItem = {
  *   ┌──────────────────────┐
  *   │ Workspace switcher   │  KitZ + sandbox tag + slug
  *   ├──────────────────────┤
- *   │ Pinned               │  Essentials: Inicio · Clientes · Documentos
+ *   │ Pinned               │  Workspace mode: Inicio · Clientes · WhatsApp · Calendario ·
+ *   │                      │  Cotizaciones · Pipeline · Documentos · Artefactos · Reportes
  *   │ Atajos               │  Mode-specific one-click actions (hidden when empty)
- *   │ Add-ons              │  Optional modules: Calendario / Cotizador / WhatsApp / Reportes
+ *   │ Add-ons              │  Reserved for promotable extras (currently empty in workspace mode)
  *   ├──────────────────────┤
  *   │ Footer               │  ES/EN/PT · theme · fullscreen · settings · collapse
  *   └──────────────────────┘
@@ -390,43 +391,24 @@ function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
     };
   }
   // Default: workspace
-  // Pinned = absolute essentials only. Calendar / cotizador / WhatsApp /
-  // sales pipeline / reports are all add-ons the user can expand into.
+  // All operational pages are pinned. WhatsApp is the Baileys connector
+  // — fundamental comms surface, not an "extra" — so it sits as a
+  // first-class nav item rather than buried in an Add-on group. Add-ons
+  // section reserved for genuinely optional / promotable extras.
   return {
     pinned: [
       { href: '/workspace', label: 'Inicio', icon: Home },
       { href: '/workspace/contactos', label: 'Clientes', icon: Users },
+      { href: '/workspace/conversaciones', label: 'WhatsApp', icon: MessageSquare },
       { href: '/workspace/calendario', label: 'Calendario', icon: Calendar },
+      { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
+      { href: '/workspace/ventas', label: 'Pipeline', icon: BarChart3 },
       { href: '/workspace/canvas/documentos', label: 'Documentos', icon: Package },
       { href: '/workspace/canvas/recientes', label: 'Artefactos recientes', icon: Clock },
+      { href: '/workspace/reportes', label: 'Reportes', icon: BarChart3 },
     ],
     shortcuts: [],
-    addOnGroups: [
-      {
-        key: 'quoter',
-        label: 'Cotizador',
-        icon: Receipt,
-        items: [
-          { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
-          { href: '/workspace/ventas', label: 'Pipeline', icon: BarChart3 },
-        ],
-      },
-      {
-        key: 'whatsapp',
-        label: 'WhatsApp',
-        icon: MessageSquare,
-        items: [
-          { href: '/workspace/conversaciones', label: 'Conversaciones', icon: MessageSquare },
-          { href: '/workspace/conversaciones', label: 'Conectar', icon: Plug },
-        ],
-      },
-      {
-        key: 'reporting',
-        label: 'Reportes',
-        icon: BarChart3,
-        items: [{ href: '/workspace/reportes', label: 'Resumen', icon: BarChart3 }],
-      },
-    ],
+    addOnGroups: [],
   };
 }
 
