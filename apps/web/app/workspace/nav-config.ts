@@ -56,6 +56,7 @@ export const NAV_BY_MODE: Record<ShellMode, NavSection[]> = {
         { href: '/workspace/calendario', label: 'Calendario', icon: 'calendar' },
         { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: 'invoice' },
         { href: '/workspace/reportes', label: 'Reportes', icon: 'report' },
+        { href: '/workspace/ajustes/mi-empresa', label: 'Mi empresa', icon: 'settings' },
       ],
     },
   ],

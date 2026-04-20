@@ -5,11 +5,12 @@ import { brandStore } from '@/lib/brand/store';
 import { BrandForm } from './brand-form';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Marca · KitZ' };
+export const metadata = { title: 'Mi empresa · KitZ' };
 
 /**
- * Brand settings page — controls the "looks like my company"
- * layer of every quote and invoice the user exports as PDF.
+ * "Mi empresa" — the brand identity layer that personalizes every
+ * quote and invoice the user exports as PDF. Logo, datos fiscales,
+ * colores, notas al pie, y los defaults de moneda + impuesto.
  *
  * The actual form is a client component so the logo picker can
  * turn a File into a data URL in-browser without a separate
@@ -17,7 +18,7 @@ export const metadata = { title: 'Marca · KitZ' };
  * page just server-reads the current settings and hands them off
  * as initialValues.
  */
-export default async function MarcaPage() {
+export default async function MiEmpresaPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const db = getDb();
@@ -39,9 +40,9 @@ export default async function MarcaPage() {
       }}
     >
       <header>
-        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Marca</h1>
+        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Mi empresa</h1>
         <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#666' }}>
-          Logo, colores y datos fiscales que aparecen en cotizaciones y facturas en PDF.
+          Logo, colores, datos fiscales y notas que aparecen en cada cotización y factura en PDF.
         </p>
       </header>
 
