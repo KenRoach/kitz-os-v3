@@ -61,29 +61,26 @@ export default async function CanvasGalleryPage() {
 
       <section
         style={{
-          padding: 'clamp(1rem, 2.5vw, 2rem)',
-          maxWidth: '78rem',
-          margin: '0 auto',
+          padding: '1.5rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.5rem',
+          gap: '1rem',
+          height: '100%',
+          overflow: 'auto',
         }}
       >
         <header
           style={{
             display: 'flex',
+            alignItems: 'center',
             justifyContent: 'space-between',
-            flexWrap: 'wrap',
             gap: '1rem',
-            alignItems: 'flex-end',
+            flexWrap: 'wrap',
           }}
         >
           <div>
-            <p className="kz-mute kz-prompt" style={{ marginBottom: '0.5rem' }}>
-              kitz canvas
-            </p>
-            <h1 style={{ marginBottom: '0.25rem' }}>Canvas</h1>
-            <p className="kz-mute" style={{ margin: 0 }}>
+            <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Canvas</h1>
+            <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#666' }}>
               {total} artefacto{total === 1 ? '' : 's'} generado
               {total === 1 ? '' : 's'} · {invoices.length} cotización/factura
               {invoices.length === 1 ? '' : 'es'} · {documents.length} documento
@@ -93,27 +90,29 @@ export default async function CanvasGalleryPage() {
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Link
               href="/workspace/cotizaciones"
-              className="kz-button"
               style={{
-                width: 'auto',
-                padding: '0.45rem 0.85rem',
-                fontSize: '0.7rem',
+                background: '#000',
+                color: '#fff',
+                border: '1px solid #000',
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.75rem',
                 textDecoration: 'none',
               }}
             >
-              + Cotización
+              Cotización
             </Link>
             <Link
               href="/workspace/canvas/documentos"
-              className="kz-button kz-button-ghost"
               style={{
-                width: 'auto',
-                padding: '0.45rem 0.85rem',
-                fontSize: '0.7rem',
+                background: '#fff',
+                color: '#000',
+                border: '1px solid #000',
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.75rem',
                 textDecoration: 'none',
               }}
             >
-              + Documento
+              Documento
             </Link>
           </div>
         </header>

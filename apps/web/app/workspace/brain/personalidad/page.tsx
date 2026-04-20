@@ -27,20 +27,17 @@ export default async function PersonalidadPage() {
   return (
     <section
       style={{
-        padding: 'clamp(1rem, 2.5vw, 2rem)',
-        maxWidth: '60rem',
-        margin: '0 auto',
+        padding: '1.5rem',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.5rem',
+        gap: '1rem',
+        height: '100%',
+        overflow: 'auto',
       }}
     >
       <header>
-        <p className="kz-mute kz-prompt" style={{ marginBottom: '0.5rem' }}>
-          kitz brain personality
-        </p>
-        <h1 style={{ marginBottom: '0.25rem' }}>Personalidad</h1>
-        <p className="kz-mute" style={{ margin: 0 }}>
+        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Personalidad</h1>
+        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#666' }}>
           La voz, el tono y el comportamiento del agente activo.
         </p>
       </header>

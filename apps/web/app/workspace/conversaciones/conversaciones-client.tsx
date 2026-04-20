@@ -98,20 +98,17 @@ export default function ConversacionesClient() {
   return (
     <section
       style={{
-        padding: '2rem',
-        display: 'grid',
-        gap: '1.5rem',
-        maxWidth: '80rem',
-        width: '100%',
-        margin: '0 auto',
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        height: '100%',
+        overflow: 'auto',
       }}
     >
       <header>
-        <p className="kz-mute kz-prompt" style={{ marginBottom: '0.5rem' }}>
-          kitz inbox
-        </p>
-        <h1 style={{ marginBottom: '0.25rem' }}>Conversaciones</h1>
-        <p className="kz-mute">
+        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Conversaciones</h1>
+        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#666' }}>
           WhatsApp vía Baileys. Un solo número por espacio. Mensajes entrantes caen en esta bandeja.
         </p>
       </header>

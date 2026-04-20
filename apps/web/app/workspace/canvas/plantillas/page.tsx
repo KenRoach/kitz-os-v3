@@ -31,20 +31,17 @@ export default function PlantillasPage() {
 
       <section
         style={{
-          padding: 'clamp(1rem, 2.5vw, 2rem)',
-          maxWidth: '78rem',
-          margin: '0 auto',
+          padding: '1.5rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.5rem',
+          gap: '1rem',
+          height: '100%',
+          overflow: 'auto',
         }}
       >
         <header>
-          <p className="kz-mute kz-prompt" style={{ marginBottom: '0.5rem' }}>
-            kitz canvas templates
-          </p>
-          <h1 style={{ marginBottom: '0.25rem' }}>Plantillas</h1>
-          <p className="kz-mute" style={{ margin: 0 }}>
+          <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Plantillas</h1>
+          <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#666' }}>
             Configuraciones de agentes pre-empaquetadas para casos comunes.
           </p>
         </header>

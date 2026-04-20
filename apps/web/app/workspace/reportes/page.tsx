@@ -79,29 +79,26 @@ export default async function ReportesPage({
 
       <section
         style={{
-          padding: 'clamp(1rem, 2.5vw, 2rem)',
-          maxWidth: '78rem',
-          margin: '0 auto',
+          padding: '1.5rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.5rem',
+          gap: '1rem',
+          height: '100%',
+          overflow: 'auto',
         }}
       >
         <header
           style={{
             display: 'flex',
-            flexWrap: 'wrap',
-            gap: '1rem',
-            alignItems: 'flex-end',
+            alignItems: 'center',
             justifyContent: 'space-between',
+            gap: '1rem',
+            flexWrap: 'wrap',
           }}
         >
           <div>
-            <p className="kz-mute kz-prompt" style={{ marginBottom: '0.5rem' }}>
-              kitz reports
-            </p>
-            <h1 style={{ marginBottom: '0.25rem' }}>Reportes</h1>
-            <p className="kz-mute" style={{ margin: 0 }}>
+            <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Reportes</h1>
+            <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#666' }}>
               {range.label} · {primary.tenant.name}
             </p>
           </div>

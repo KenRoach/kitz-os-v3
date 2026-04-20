@@ -53,44 +53,42 @@ export default async function ConocimientoPage() {
   return (
     <section
       style={{
-        padding: 'clamp(1rem, 2.5vw, 2rem)',
-        maxWidth: '72rem',
-        margin: '0 auto',
+        padding: '1.5rem',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.5rem',
+        gap: '1rem',
+        height: '100%',
+        overflow: 'auto',
       }}
     >
       <header
         style={{
           display: 'flex',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          alignItems: 'flex-end',
+          alignItems: 'center',
           justifyContent: 'space-between',
+          gap: '1rem',
+          flexWrap: 'wrap',
         }}
       >
         <div>
-          <p className="kz-mute kz-prompt" style={{ marginBottom: '0.5rem' }}>
-            kitz knowledge
-          </p>
-          <h1 style={{ marginBottom: '0.25rem' }}>Conocimiento</h1>
-          <p className="kz-mute" style={{ margin: 0 }}>
+          <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Conocimiento</h1>
+          <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#666' }}>
             {docs.length} documento{docs.length === 1 ? '' : 's'} · {extracted} extraído
             {extracted === 1 ? '' : 's'} · {fmtBytes(totalBytes)}
           </p>
         </div>
         <Link
           href="/workspace/canvas/documentos"
-          className="kz-button"
           style={{
-            width: 'auto',
-            padding: '0.45rem 0.9rem',
-            fontSize: '0.7rem',
+            background: '#000',
+            color: '#fff',
+            border: '1px solid #000',
+            padding: '0.4rem 0.8rem',
+            fontSize: '0.75rem',
             textDecoration: 'none',
           }}
         >
-          + Subir documento
+          Subir documento
         </Link>
       </header>
 
