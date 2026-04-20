@@ -93,6 +93,16 @@ export function loadVibe(tenantSlug: string): VibeId {
 export function saveVibe(tenantSlug: string, vibe: VibeId): void {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(`${STORAGE_PREFIX}:${tenantSlug}`, vibe);
+  // Same-tab sync: dispatch the event that prefs/client.ts also fires
+  // when pulling from the server, so every vibe picker re-reads.
+  window.dispatchEvent(
+    new CustomEvent('kitz-vibe-change', {
+      detail: { vibe, tenantSlug },
+    }),
+  );
+  // Replicate to the server so the other device gets it. Lazy import
+  // keeps the prefs client out of SSR bundles.
+  void import('@/lib/prefs/client').then(({ pushPref }) => pushPref('vibe', vibe));
 }
 
 export function getVibe(id: VibeId): Vibe {

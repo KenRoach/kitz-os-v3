@@ -67,6 +67,9 @@ export function saveLang(tenantSlug: string, lang: LangId): void {
   window.localStorage.setItem(LEGACY_KEY, lang);
   // Tell other components in the tab to re-read.
   window.dispatchEvent(new CustomEvent('kitz-lang-change', { detail: { lang, tenantSlug } }));
+  // Replicate to server so the other device picks it up on next
+  // pull / focus / stream event.
+  void import('@/lib/prefs/client').then(({ pushPref }) => pushPref('lang', lang));
 }
 
 /** Ergonomic helper for components that just want the current code. */

@@ -17,6 +17,7 @@ import SetupGuide from './setup-guide';
 import MobileMount from './mobile-mount';
 import { FullscreenProvider } from './fullscreen-context';
 import { AlertLayer } from '@/lib/stream/alert-layer';
+import { PrefsSyncMount } from './prefs-sync-mount';
 
 export const dynamic = 'force-dynamic';
 
@@ -136,6 +137,11 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
           server-side emit (WhatsApp inbound, invoice paid, etc) pops
           a toast on whichever shell is currently open. */}
       <AlertLayer />
+
+      {/* Pulls /api/prefs on mount + on focus + on vibe.changed SSE
+          events so localStorage stays in sync with the server. Keeps
+          vibe / voice / language consistent across devices. */}
+      <PrefsSyncMount tenantSlug={resolved.tenant.slug} />
 
       {/* Mobile experience — only renders on viewports <= 768px */}
       <MobileMount

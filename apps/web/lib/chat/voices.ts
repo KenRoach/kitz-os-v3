@@ -101,6 +101,13 @@ export function loadVoice(tenantSlug: string): VoiceId {
 export function saveVoice(tenantSlug: string, voice: VoiceId): void {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(`${STORAGE_PREFIX}:${tenantSlug}`, voice);
+  window.dispatchEvent(
+    new CustomEvent('kitz-voice-change', {
+      detail: { voice, tenantSlug },
+    }),
+  );
+  // Replicate to server for cross-device sync.
+  void import('@/lib/prefs/client').then(({ pushPref }) => pushPref('voice', voice));
 }
 
 export function getVoice(id: VoiceId): Voice {
