@@ -2,7 +2,6 @@ import { cookies } from 'next/headers';
 import { getDb } from '@/lib/db';
 import { SESSION_COOKIE_NAME, resolveSession } from '@/lib/auth/session';
 import StatsGrid from './components/stats-grid';
-import ReadinessChecklist, { buildChecklist } from './components/readiness-checklist';
 import ActivityFeed from './components/activity-feed';
 
 export const dynamic = 'force-dynamic';
@@ -25,7 +24,10 @@ export default async function DashboardPage() {
     db.getTenantStats(primary.tenant.id),
     db.listRecentActivity(primary.tenant.id, 10),
   ]);
-  const checklist = buildChecklist(stats);
+
+  // The setup checklist lives in the floating SetupGuide rendered by
+  // the workspace layout — single source of truth. Don't duplicate it
+  // here on the dashboard.
 
   return (
     <section style={{ padding: '2rem', maxWidth: '60rem', margin: '0 auto' }}>
@@ -40,7 +42,6 @@ export default async function DashboardPage() {
       <StatsGrid stats={stats} />
 
       <div style={{ display: 'grid', gap: '1.5rem' }}>
-        <ReadinessChecklist items={checklist} />
         <ActivityFeed events={activity} />
       </div>
     </section>
