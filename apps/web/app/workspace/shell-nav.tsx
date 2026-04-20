@@ -61,9 +61,9 @@ type NavItem = {
  *   ┌──────────────────────┐
  *   │ Workspace switcher   │  KitZ + sandbox tag + slug
  *   ├──────────────────────┤
- *   │ Pinned               │  Daily ops: Inicio · Clientes · Conversaciones · Calendario · Documentos
- *   │ Atajos               │  One-click: Conectar WhatsApp · Nueva cotización
- *   │ Add-ons              │  Optional modules: Ventas / Reportes / Brain  (collapsible)
+ *   │ Pinned               │  Essentials: Inicio · Clientes · Documentos
+ *   │ Atajos               │  Mode-specific one-click actions (hidden when empty)
+ *   │ Add-ons              │  Optional modules: Calendario / Cotizador / WhatsApp / Reportes
  *   ├──────────────────────┤
  *   │ Footer               │  ES/EN/PT · theme · fullscreen · settings · collapse
  *   └──────────────────────┘
@@ -76,10 +76,14 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
   const pathname = usePathname();
   const shellMode = modeForPath(pathname);
   const [collapsed, setCollapsed] = useState(false);
-  const [productsOpen, setProductsOpen] = useState({
-    payments: true,
+  // Open/closed per add-on group. Keyspace is intentionally open: the
+  // rail model can grow without touching this state shape.
+  const [productsOpen, setProductsOpen] = useState<Record<string, boolean>>({
+    calendar: true,
+    quoter: true,
+    whatsapp: false,
+    payments: false,
     reporting: false,
-    more: false,
   });
   const { fullscreen } = useFullscreen();
 
@@ -97,7 +101,7 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
     }
   }
 
-  function toggleGroup(key: keyof typeof productsOpen) {
+  function toggleGroup(key: string) {
     setProductsOpen((s) => ({ ...s, [key]: !s[key] }));
   }
 
@@ -231,18 +235,21 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
           ))}
         </div>
 
-        {/* Shortcuts */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <RailHeading>Atajos</RailHeading>
-          {shortcuts.map((item) => (
-            <RailLink key={item.href + item.label} item={item} active={isActive(item.href)} />
-          ))}
-        </div>
+        {/* Shortcuts — hidden when the active mode has none */}
+        {shortcuts.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <RailHeading>Atajos</RailHeading>
+            {shortcuts.map((item) => (
+              <RailLink key={item.href + item.label} item={item} active={isActive(item.href)} />
+            ))}
+          </div>
+        )}
 
-        {/* Add-ons */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-          <RailHeading>Add-ons</RailHeading>
-          {addOnGroups.map((group) => {
+        {/* Add-ons — hidden when the active mode has none */}
+        {addOnGroups.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+            <RailHeading>Add-ons</RailHeading>
+            {addOnGroups.map((group) => {
             const Icon = group.icon;
             const open = productsOpen[group.key];
             return (
@@ -307,7 +314,8 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </nav>
 
       <ShellNavFooter
@@ -322,7 +330,7 @@ export default function ShellNav({ tenantSlug, role, email }: Props) {
 }
 
 type AddOnGroup = {
-  key: 'payments' | 'reporting' | 'more';
+  key: string;
   label: string;
   icon: typeof Home;
   items: NavItem[];
@@ -382,26 +390,38 @@ function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
     };
   }
   // Default: workspace
+  // Pinned = absolute essentials only. Calendar / cotizador / WhatsApp /
+  // sales pipeline / reports are all add-ons the user can expand into.
   return {
     pinned: [
       { href: '/workspace', label: 'Inicio', icon: Home },
       { href: '/workspace/contactos', label: 'Clientes', icon: Users },
-      { href: '/workspace/conversaciones', label: 'Conversaciones', icon: MessageSquare },
-      { href: '/workspace/calendario', label: 'Calendario', icon: Calendar },
       { href: '/workspace/canvas/documentos', label: 'Documentos', icon: Package },
     ],
-    shortcuts: [
-      { href: '/workspace/conversaciones', label: 'Conectar WhatsApp', icon: Plug },
-      { href: '/workspace/cotizaciones', label: 'Nueva cotización', icon: Receipt },
-    ],
+    shortcuts: [],
     addOnGroups: [
       {
-        key: 'payments',
-        label: 'Ventas',
-        icon: CreditCard,
+        key: 'calendar',
+        label: 'Calendario',
+        icon: Calendar,
+        items: [{ href: '/workspace/calendario', label: 'Agenda', icon: Calendar }],
+      },
+      {
+        key: 'quoter',
+        label: 'Cotizador',
+        icon: Receipt,
         items: [
           { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
           { href: '/workspace/ventas', label: 'Pipeline', icon: BarChart3 },
+        ],
+      },
+      {
+        key: 'whatsapp',
+        label: 'WhatsApp',
+        icon: MessageSquare,
+        items: [
+          { href: '/workspace/conversaciones', label: 'Conversaciones', icon: MessageSquare },
+          { href: '/workspace/conversaciones', label: 'Conectar', icon: Plug },
         ],
       },
       {
