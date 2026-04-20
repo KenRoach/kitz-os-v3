@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useFullscreen } from './fullscreen-context';
+import { type LangId, loadLang, saveLang } from '@/lib/i18n/lang';
 
 const LANGS = ['ES', 'EN', 'PT'] as const;
 type Lang = (typeof LANGS)[number];
@@ -15,12 +16,12 @@ type Props = {
   onToggleCollapsed: () => void;
 };
 
-const LANG_KEY = 'kitz-lang';
 const THEME_KEY = 'kitz-theme';
 
-function isLang(value: string | null): value is Lang {
-  return value === 'ES' || value === 'EN' || value === 'PT';
-}
+// UI label <-> LangId helpers. lang.ts is the source of truth (lowercase
+// 'es'/'en'/'pt'); the pills render uppercase.
+const UI_TO_ID: Record<Lang, LangId> = { ES: 'es', EN: 'en', PT: 'pt' };
+const ID_TO_UI: Record<LangId, Lang> = { es: 'ES', en: 'EN', pt: 'PT' };
 
 /** Icon button style matched to the ES/EN/PT language-pill size. */
 function iconBtnStyle(active: boolean): React.CSSProperties {
@@ -77,20 +78,21 @@ export default function ShellNavFooter({
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const stored = window.localStorage.getItem(LANG_KEY);
-    if (isLang(stored)) setLang(stored);
+    // Source of truth is lang.ts (per-tenant). Map to the uppercase UI
+    // label for the pill renderer.
+    setLang(ID_TO_UI[loadLang(tenantSlug)]);
     const theme = window.localStorage.getItem(THEME_KEY);
     if (theme === 'dark') {
       setIsDark(true);
       document.documentElement.dataset['theme'] = 'dark';
     }
-  }, []);
+  }, [tenantSlug]);
 
   function pickLang(next: Lang) {
     setLang(next);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(LANG_KEY, next);
-    }
+    // Write through lang.ts so the chat / voice / STT all observe the
+    // change (saveLang dispatches a 'kitz-lang-change' event).
+    saveLang(tenantSlug, UI_TO_ID[next]);
   }
 
   function toggleTheme() {
