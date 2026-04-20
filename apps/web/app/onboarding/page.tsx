@@ -16,7 +16,15 @@ export default async function OnboardingPage() {
   const db = getDb();
   const session = await resolveSession(db, token);
   if (!session) {
-    if (token) cookieStore.delete(SESSION_COOKIE_NAME);
+    // See note in workspace/layout.tsx — cookie writes from a plain
+    // Server Component are forbidden in Next 15. Best-effort delete.
+    if (token) {
+      try {
+        cookieStore.delete(SESSION_COOKIE_NAME);
+      } catch {
+        /* not fatal */
+      }
+    }
     redirect('/login');
   }
 

@@ -16,6 +16,8 @@ type Props = {
   tenantName: string;
   credits: number;
   email: string;
+  mode: 'sandbox' | 'live';
+  hasLive: boolean;
 };
 
 export default function MobileMount(props: Props) {

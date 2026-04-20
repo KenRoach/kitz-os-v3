@@ -1,8 +1,14 @@
+import { Suspense } from 'react';
 import LoginForm from './login-form';
 
 export const metadata = {
   title: 'Entrar · KitZ',
 };
+
+// LoginForm uses useSearchParams() for the ?next= round-trip, which forces
+// dynamic rendering unless we wrap it in a Suspense boundary at the page
+// level. Boundary lets the static shell prerender while the form streams
+// in once the search params resolve.
 
 export default function LoginPage() {
   return (
@@ -25,7 +31,9 @@ export default function LoginPage() {
         </p>
         <div className="kz-divider" />
         <div style={{ marginTop: '1.5rem' }}>
-          <LoginForm />
+          <Suspense fallback={<p className="kz-mute">cargando…</p>}>
+            <LoginForm />
+          </Suspense>
         </div>
       </section>
     </main>

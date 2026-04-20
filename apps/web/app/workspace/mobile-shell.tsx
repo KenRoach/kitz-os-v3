@@ -88,9 +88,17 @@ type Props = {
   tenantName: string;
   credits: number;
   email: string;
+  mode: 'sandbox' | 'live';
+  hasLive: boolean;
 };
 
-export default function MobileShell({ tenantName, credits, email: _email }: Props) {
+export default function MobileShell({
+  tenantName,
+  credits,
+  email: _email,
+  mode,
+  hasLive,
+}: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('chat');
 
   return (
@@ -145,6 +153,13 @@ export default function MobileShell({ tenantName, credits, email: _email }: Prop
           overflow: 'hidden',
         }}
       >
+        {/* Sandbox banner — compact variant tuned for mobile widths.
+            Hidden in live mode. Tapping the pill switches to live and
+            reloads so server components re-resolve their tenant. */}
+        {mode === 'sandbox' && (
+          <MobileSandboxStrip hasLive={hasLive} />
+        )}
+
         {/* Header */}
         <header
           style={{
@@ -1237,6 +1252,93 @@ function CalendarTab() {
         </div>
         Pregúntale a KitZ: «agenda cita con Jaime mañana 3pm» y se crea automáticamente.
       </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── Sandbox banner (mobile) ─────────────── */
+
+function MobileSandboxStrip({ hasLive }: { hasLive: boolean }) {
+  const [busy, setBusy] = useState(false);
+  const onSwitch = async () => {
+    if (busy || !hasLive) return;
+    setBusy(true);
+    try {
+      const res = await fetch('/api/workspace/mode', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mode: 'live' }),
+      });
+      if (res.ok) window.location.reload();
+      else setBusy(false);
+    } catch {
+      setBusy(false);
+    }
+  };
+  return (
+    <div
+      style={{
+        background: '#0e1f33',
+        color: '#f9f6ef',
+        padding: '6px 12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 8,
+        flexShrink: 0,
+        fontSize: 11,
+        fontFamily: T.mono,
+        borderBottom: '1px solid #1a3656',
+      }}
+    >
+      <span
+        style={{
+          padding: '2px 6px',
+          border: '1px solid #2d4f78',
+          background: '#13294a',
+          fontSize: 9,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          fontWeight: 600,
+          flexShrink: 0,
+        }}
+        aria-label="Modo sandbox activo"
+      >
+        ▣ Sandbox
+      </span>
+      <span
+        style={{
+          flex: 1,
+          minWidth: 0,
+          opacity: 0.85,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Probando en sandbox
+      </span>
+      <button
+        type="button"
+        onClick={onSwitch}
+        disabled={busy || !hasLive}
+        title={hasLive ? 'Cambiar a tu cuenta real' : 'Tu cuenta real aún no está configurada'}
+        style={{
+          background: '#f9f6ef',
+          color: '#0e1f33',
+          border: '1px solid #f9f6ef',
+          padding: '3px 8px',
+          fontSize: 10,
+          fontFamily: T.mono,
+          letterSpacing: '0.04em',
+          fontWeight: 600,
+          cursor: busy || !hasLive ? 'not-allowed' : 'pointer',
+          opacity: busy || !hasLive ? 0.55 : 1,
+          flexShrink: 0,
+        }}
+      >
+        {busy ? 'Cambiando…' : 'Cuenta real'}
+      </button>
     </div>
   );
 }

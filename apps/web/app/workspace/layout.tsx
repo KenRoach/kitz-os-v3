@@ -42,9 +42,19 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   if (!session) {
     // Stale cookie path: middleware saw a cookie present and let us
     // through, but the in-memory session was wiped (dev restart) or
-    // expired. Clear it so the user only has to log in once instead of
-    // bouncing back here on the next attempt with the same dead cookie.
-    if (token) cookieStore.delete(SESSION_COOKIE_NAME);
+    // expired. We'd LIKE to delete the cookie here so the user only has
+    // to log in once, but Next 15 forbids cookie writes in plain Server
+    // Components — only Server Actions or Route Handlers can mutate
+    // cookies. Wrap in a try so the delete attempt doesn't blow up the
+    // layout; the redirect-to-login still happens, and the verify route
+    // overwrites the cookie on the next OTP submit.
+    if (token) {
+      try {
+        cookieStore.delete(SESSION_COOKIE_NAME);
+      } catch {
+        /* not fatal — middleware will see the new cookie next request */
+      }
+    }
     redirect('/login');
   }
 
@@ -108,6 +118,8 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
         tenantName={resolved.tenant.name}
         credits={stats.credits.balance}
         email={session.email}
+        mode={mode}
+        hasLive={hasLive}
       />
     </FullscreenProvider>
   );

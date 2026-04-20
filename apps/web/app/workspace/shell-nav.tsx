@@ -350,6 +350,9 @@ type RailModel = {
  */
 function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
   if (mode === 'brain') {
+    // Brain = where you upload + train. Knowledge, personality, agents,
+    // skills, raw documents (the OCR upload UI lives at canvas/documentos
+    // but is a Brain action conceptually).
     return {
       pinned: [
         { href: '/workspace/brain', label: 'Resumen', icon: Brain },
@@ -357,34 +360,29 @@ function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
         { href: '/workspace/brain/agentes', label: 'Agentes', icon: Bot },
         { href: '/workspace/brain/skills', label: 'Skills', icon: Sparkles },
         { href: '/workspace/brain/conocimiento', label: 'Conocimiento', icon: BookOpen },
+        { href: '/workspace/canvas/documentos', label: 'Documentos', icon: FileText },
         { href: '/workspace/brain/registro', label: 'Registro', icon: ScrollText },
       ],
       shortcuts: [
+        { href: '/workspace/canvas/documentos', label: 'Subir documento', icon: FileText },
         { href: '/workspace/brain/agentes', label: 'Nuevo agente', icon: Bot },
         { href: '/workspace/brain/skills', label: 'Nueva skill', icon: Sparkles },
       ],
-      addOnGroups: [
-        {
-          key: 'more',
-          label: 'Avanzado',
-          icon: MoreHorizontal,
-          items: [
-            { href: '/workspace/brain/registro', label: 'Logs', icon: ScrollText },
-          ],
-        },
-      ],
+      addOnGroups: [],
     };
   }
   if (mode === 'canvas') {
+    // Canvas = where you create artifacts. Cotizaciones, generated
+    // designs, anything that produces output. Knowledge uploads live
+    // under Brain, not here.
     return {
       pinned: [
         { href: '/workspace/canvas', label: 'Galería', icon: ImageIcon },
-        { href: '/workspace/canvas/documentos', label: 'Documentos', icon: FileText },
+        { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
         { href: '/workspace/canvas/plantillas', label: 'Plantillas', icon: LayoutTemplate },
         { href: '/workspace/canvas/recientes', label: 'Recientes', icon: Clock },
       ],
       shortcuts: [
-        { href: '/workspace/canvas/documentos', label: 'Subir documento', icon: FileText },
         { href: '/workspace/cotizaciones', label: 'Nueva cotización', icon: Receipt },
       ],
       addOnGroups: [],
@@ -405,8 +403,6 @@ function railModelForMode(mode: 'workspace' | 'brain' | 'canvas'): RailModel {
       { href: '/workspace/cotizaciones', label: 'Cotizaciones', icon: Receipt },
       { href: '/workspace/productos', label: 'Productos', icon: Package },
       { href: '/workspace/ventas', label: 'Pipeline', icon: BarChart3 },
-      { href: '/workspace/canvas/documentos', label: 'Documentos', icon: Package },
-      { href: '/workspace/canvas/recientes', label: 'Artefactos recientes', icon: Clock },
       { href: '/workspace/reportes', label: 'Reportes', icon: BarChart3 },
     ],
     shortcuts: [],
