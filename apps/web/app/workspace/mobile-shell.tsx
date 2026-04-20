@@ -305,20 +305,113 @@ const QUICK_ACTIONS: Array<{
   { id: 'report', label: 'Reporte', icon: FileText, cmd: 'Reporte semanal' },
 ];
 
+/**
+ * Hydration helpers for the shared chat thread.
+ *
+ * The server stores history in lib/chat-history/store.ts keyed by
+ * (tenant, user). ChatTab and the desktop ShellChat both read +
+ * write through /api/chat-history so both shells see the same
+ * conversation regardless of which device last spoke.
+ */
+const SEED_MESSAGE: Message = {
+  id: 'seed',
+  from: 'kitz',
+  time: nowHHMM(),
+  text: 'Kitz, tu asistente personal. ¿En qué te ayudo?',
+};
+
+function apiToMessage(m: {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  text: string;
+  createdAt: string;
+}): Message | null {
+  if (m.role === 'system') return null;
+  return {
+    id: m.id,
+    from: m.role === 'user' ? 'user' : 'kitz',
+    text: m.text,
+    time: new Date(m.createdAt).toLocaleTimeString('es', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  };
+}
+
+async function persistTurn(
+  role: 'user' | 'assistant',
+  text: string,
+): Promise<void> {
+  try {
+    await fetch('/api/chat-history', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ role, text, fromDevice: 'mobile' }),
+    });
+  } catch {
+    // Offline or server unreachable — local state keeps the turn
+    // visible; the next successful send will sync and the SSE
+    // stream will resolve drift on the other device.
+  }
+}
+
 function ChatTab() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'seed',
-      from: 'kitz',
-      time: nowHHMM(),
-      text: 'Kitz, tu asistente personal. ¿En qué te ayudo?',
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([SEED_MESSAGE]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
   const [showAttach, setShowAttach] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Hydrate thread from the server on mount. If the server has
+  // history, replace the seed greeting with it; otherwise keep the
+  // seed so first-time users aren't staring at an empty pane.
+  const hydrate = useCallback(async () => {
+    try {
+      const r = await fetch('/api/chat-history', { cache: 'no-store' });
+      const j = (await r.json()) as {
+        data: {
+          items: {
+            id: string;
+            role: 'user' | 'assistant' | 'system';
+            text: string;
+            createdAt: string;
+          }[];
+        } | null;
+      };
+      const items = j.data?.items ?? [];
+      if (items.length === 0) return;
+      const mapped = items.map(apiToMessage).filter((m): m is Message => m !== null);
+      if (mapped.length > 0) setMessages(mapped);
+    } catch {
+      // Keep the seed message if hydration fails.
+    }
+  }, []);
+
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
+
+  // React to chat.message events from the other device — re-pull
+  // the full thread rather than trying to reconstruct the payload,
+  // since a re-fetch is cheap and guarantees ordering/cap semantics
+  // match what the server actually stored.
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof EventSource === 'undefined') return;
+    const es = new EventSource('/api/stream');
+    es.onmessage = (msg) => {
+      if (!msg.data || typeof msg.data !== 'string') return;
+      try {
+        const parsed = JSON.parse(msg.data) as { kind: string; fromDevice?: string };
+        if (parsed.kind === 'chat.message' && parsed.fromDevice !== 'mobile') {
+          void hydrate();
+        }
+      } catch {
+        // Heartbeats / malformed frames: ignore.
+      }
+    };
+    return () => es.close();
+  }, [hydrate]);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
@@ -337,6 +430,11 @@ function ChatTab() {
     };
     setMessages((m) => [...m, userMsg]);
     setSending(true);
+
+    // Persist the user turn in parallel with /api/chat so the desktop
+    // shell sees it immediately via SSE re-hydration.
+    void persistTurn('user', trimmed);
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -352,15 +450,12 @@ function ChatTab() {
       // /api/chat returns 402 on insufficient credits, 502 if ai-runtime
       // is down (debit still happened), or 200 with the upstream reply.
       if (res.status === 402) {
+        const text = 'Sin créditos. Recarga tu batería en Ajustes → Facturación para seguir.';
         setMessages((m) => [
           ...m,
-          {
-            id: `k-${Date.now()}`,
-            from: 'kitz',
-            time: nowHHMM(),
-            text: 'Sin créditos. Recarga tu batería en Ajustes → Facturación para seguir.',
-          },
+          { id: `k-${Date.now()}`, from: 'kitz', time: nowHHMM(), text },
         ]);
+        void persistTurn('assistant', text);
         return;
       }
       const json = (await res.json().catch(() => null)) as
@@ -379,16 +474,14 @@ function ChatTab() {
         ...m,
         { id: `k-${Date.now()}`, from: 'kitz', time: nowHHMM(), text: reply },
       ]);
+      void persistTurn('assistant', reply);
     } catch {
+      const text = 'Error de red. Intenta de nuevo.';
       setMessages((m) => [
         ...m,
-        {
-          id: `k-${Date.now()}`,
-          from: 'kitz',
-          time: nowHHMM(),
-          text: 'Error de red. Intenta de nuevo.',
-        },
+        { id: `k-${Date.now()}`, from: 'kitz', time: nowHHMM(), text },
       ]);
+      void persistTurn('assistant', text);
     } finally {
       setSending(false);
     }
