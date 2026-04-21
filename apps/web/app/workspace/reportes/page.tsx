@@ -13,6 +13,7 @@ import { Sparkline, MiniBars, Funnel } from '@/lib/reports/charts';
 import RangePicker from './range-picker';
 import InsightCard from './insight-card';
 import AskBox from './ask-box';
+import { ExportButton } from './export-button';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Reportes · KitZ' };
@@ -114,7 +115,10 @@ export default async function ReportesPage({
               {range.label} · {primary.tenant.name}
             </p>
           </div>
-          <RangePicker />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <RangePicker />
+            <ExportButton />
+          </div>
         </header>
 
         <InsightCard bundle={bundle} />
